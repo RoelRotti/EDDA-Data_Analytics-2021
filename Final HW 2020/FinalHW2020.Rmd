@@ -67,11 +67,19 @@ C)
 
 ```{r}
 #from whatsapp: do 
-# model <- type*diameter)
-# anova(model)
+trees2=lm(volume~diameter,data=treeVolume)
+anova(trees2)
+trees3=lm(volume~diameter*type,data=treeVolume)
+anova(trees3)
+```
+From the first anova test, we can see that diameter does significantly influence volume, as it has a p-value that is lower than the alpha of 0.05. This means we reject the null hypothesis that there is no influence of diameter on volume.
+
+In the second anova test, we find that the diameter:type p-value is much higher than 0.05. Therefore H0 (the interaction between diameter and type is of no effect on the volume) is not rejected, i.e. there is no significant interaction between factor type and predictor diameter. So the dependence is similar under the two types.
+### D)
+```{r}
+#probably do step-up and step down model to find the best one?
 ```
 
-### D)
 
 ### E)
 
