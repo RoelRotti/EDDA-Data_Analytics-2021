@@ -1,0 +1,90 @@
+---
+title: "Final2020"
+author: "Roel"
+date: "3/22/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## FINAL HW 2020
+
+```{r, include=FALSE}
+treeVolume <- read.table("treeVolume.txt", header=TRUE)
+attach(treeVolume)
+```
+
+### A) Investigate whether the tree type influences volume by performing ANOVA, without taking the diameter or height into account. What are the estimated volumes for the two tree types?
+
+```{r, fig.height=2, fig.width=8}
+par(mfrow=c(1,4))
+treeVolume$type = as.factor(treeVolume$type)
+# Check if data is parametric:
+hist(volume) ; boxplot(volume) ; qqnorm(volume); shapiro.test(volume)
+volumemodel = lm(volume~type)
+anova(volumemodel)
+summary(volumemodel)
+qqnorm(residuals(volumemodel))
+```
+
+When checking the normality of the data it looks like normality is doubtful. The histogram looks a-symmetric, the boxplot looks fairly normal (although it has 2 outliers) but the qqplot looks doubtful again, and the outcome of the Shapiro-Wilk Normality test is below 0.05 (0.01) so the H0 that the population is normally distributed is rejected. Since an ANOVA is asked we perform the anova:
+
+When performing an anova for a simplified model with just the type explaining the volume we find that the p-value for type is above 0.05 (0.17) and we thus cannot reject the H0 that the means for all factor levels are the same (no factor effect). When looking at the summary we see that the estimated volumes are 30.17 (beech) and 35.25 (oak)
+
+### B) Investigate whether tree type influences volume, now including diameter and height as explanatory variables into the analysis, which results in an ANCOVA. How does tree type influence volume? What are the estimated volumes for the two tree types with the (overall) average diameter and height?
+
+```{r}
+fulltreemodel = lm(volume~type+height+diameter)
+drop1(fulltreemodel, test = "F")
+summary(fulltreemodel)
+par(mfrow=c(1,2))
+qqnorm(residuals(fulltreemodel)) # qqplot for residuals corrected for the different population means
+plot(fitted(fulltreemodel),residuals(fulltreemodel))
+
+#CHECK INTERACRION?????
+```
+
+When performing the ANCOVA like this tree type still does not significantly influence volume, as the p-value from the anova (as performed with drop1) is above 0.05 (0.14), thus not rejecting the null hypothesis for type that alpha = 0. Height and diameter do look significant blablabla.
+
+When checking the model assumptions the qqplot looks fairly normal, whereas the fitted plot looks doubtfully homogeneous. There seems to be a gap in the top left triangle, and if the data points in the top left corner had not been there it would've looked like an absolute cone. With those points there is some room for a homogenous interpretation however.
+
+The estimated volumes for the two tree types with the (overall) average diameter and height are:
+
+```{r}
+beech = treeVolume[type=="beech",]
+oak = treeVolume[type=="oak",]
+avg_dia_beech = mean(beech$diameter); avg_dia_beech
+avg_hei_beech = mean(beech$height); avg_hei_beech
+avg_dia_oak = mean(oak$diameter); avg_dia_oak
+avg_hei_oak = mean(oak$height); avg_hei_oak
+estim_volume_beach = -63.7814 + 0.4172* avg_dia_beech + 4.6981 * avg_hei_beech; estim_volume_beach
+estim_volume_oak = -63.7814 + 0.4172* avg_dia_oak + 4.6981 * avg_hei_oak; estim_volume_oak
+```
+
+C)
+
+```{r}
+#from whatsapp: do 
+# model <- type*diameter)
+# anova(model)
+```
+
+### D)
+
+### E)
+
+```{r, fig.width= 8, fig.height=2}
+```
+
+### F)
+
+```{r}
+```
+
+```{r, include=FALSE}
+detach(XXXXXXX)
+```
+
+## 
