@@ -63,7 +63,7 @@ estim_volume_beach = -63.7814 + 0.4172* avg_dia_beech + 4.6981 * avg_hei_beech; 
 estim_volume_oak = -63.7814 + 0.4172* avg_dia_oak + 4.6981 * avg_hei_oak; estim_volume_oak
 ```
 
-C)
+C)  
 
 ```{r}
 #from whatsapp: do 
@@ -72,14 +72,16 @@ anova(trees2)
 trees3=lm(volume~diameter*type,data=treeVolume)
 anova(trees3)
 ```
+
 From the first anova test, we can see that diameter does significantly influence volume, as it has a p-value that is lower than the alpha of 0.05. This means we reject the null hypothesis that there is no influence of diameter on volume.
 
 In the second anova test, we find that the diameter:type p-value is much higher than 0.05. Therefore H0 (the interaction between diameter and type is of no effect on the volume) is not rejected, i.e. there is no significant interaction between factor type and predictor diameter. So the dependence is similar under the two types.
-### D)
+
+D)
+
 ```{r}
 #probably do step-up and step down model to find the best one?
 ```
-
 
 ### E)
 
