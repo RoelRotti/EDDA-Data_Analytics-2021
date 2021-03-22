@@ -23,7 +23,7 @@ data = read.table("birthweight.txt", header=TRUE)
 birthweight = data
 ```
 
-## a
+## a: [V]
 
 ```{r normality plots, fig.height=2, fig.width=6}
 plot3 <-function(x, title, xaxishist){
@@ -53,12 +53,14 @@ mean (average over all sample values). The sample mean is 2913.
 
 ```{r confidence interval 90 percent}
 sample_sd = sd(data$birthweight)
+##### CORRECTION : Use qt instead of qnorm because we do not know the standard deviation.
 quantile = qnorm(0.05) # in range [0.05, 0.95]
 margin_error = abs(quantile)*(sample_sd/sqrt(length(data$birthweight)))
 
 sample_mean-margin_error #lower bound
 sample_mean+margin_error #upper bound
 
+#### QUICKEST:
 # To check:
 t.test(birthweight$birthweight, conf.level = 0.90)[4]
 ```
@@ -70,7 +72,7 @@ instances). Subtracting this margin error from the sample mean gives us
 the lower bound of the confidence interval. Adding this margin error to
 the sample mean gives us the upper bound of the confidence interval.
 
-## b
+## b: small correction (but other method correct)
 
 ```{r t test birthweight alpha 0.1}
 # t-test with alpha = 0.1
@@ -107,7 +109,7 @@ becomes a bit higher. This makes sense since the higher alpha, the more
 uncertainty there is about the true mean lying in the interval, thus the
 interval can become narrower (lower bound increases).
 
-## c
+## c: not why numbers different
 
 The 90% confidence intervals differ with respect to questions **a** and
 **b** since now a one-sided t-test is performed. This results in two
@@ -125,6 +127,11 @@ differences:
     in H0. Therefore the upper bound is not computed because it's
     irrelevant for the hypothesis that is tested. Hence the upper bound
     is shown as infinity.
+
+-   **They are different because a one-sided test has more statistical
+    power to one side (but 0 to the other side). That is why for the
+    one-sided test with conf.level = 0.9 the left side of the confidence
+    interval is closer to the sample mean**
 
 # Exercise 2. Power function of the t-test
 
