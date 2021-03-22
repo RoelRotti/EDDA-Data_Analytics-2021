@@ -1,0 +1,635 @@
+---
+title: "Exam"
+output: pdf_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Scanning in data
+
+```{r}
+dataset <- read.table("DATASET.txt", header=TRUE)
+attach(dataset)
+# par(mfrow=c(2,2)) for multiple figures
+```
+
+## One Sample tests
+
+#### Bootstrap Confidence Interval (slide 2.2)
+
+When you want to know how certain you can be of a point estimate such as
+a sample mean or median, you can simulate data (with replacement and of
+same length as original dataset) over and over to obtain multiple values
+for sample means or medians.
+
+```{r}
+t = mean(dataset) # Sample mean
+B=1000 # Number of bootstrap approximations
+tstar=numeric(B)
+for(i in 1:B) {
+  xstar=sample(dataset,replace=TRUE) # sample from your dataset
+  tstar[i]=mean(Xstar) # compute the relevant statistic 
+  }
+tstar25=quantile(Tstar,0.025) # compute lower quantile
+tstar975=quantile(Tstar,0.975) # compute upper quantile
+
+c(2*t-tstar975,2*t-tstar25) # 95% bootstrap confidence interval
+```
+
+#### Bootstrap Test (slide 2.11)
+
+When you want to test whether your test statistics can be obtained from
+a certain distribution (this distribution is the H0). Than mimic these
+test statistic values by computing it over pseudo observations from the
+H0 distribution (often rexp() or rnorm())
+
+```{r}
+B=1000 # Number of bootstrap approximations
+t = max(dataset) # sample statistic
+tstar=numeric(B) 
+n = length(data)
+for (i in 1:B){
+  xstar=rexp(n,1) # Generate n pseudo observations according to H0, values that represent H0 distribution
+  tstar[i]= max(xstar) # Compute relevant statistic
+}
+# hist(data,prob=T)
+pl=sum(tstar<t)/B; # Probability(pseudo statistic below sample statistic)
+pr=sum(tstar>t)/B; # Probability(pseudo statistic above sample statistic)
+p=2*min(pl,pr) # Pick minimal probability*2 (two-tailed) and observe p-value. Lower than 0.05? -> reject H0
+```
+
+#### One sample T-test / parametric (slide 2.19)
+
+Assumptions: - Normality (check with QQplot or Shapiro-Wilk test)
+
+```{r}
+# Assumption check:
+qqnorm(dataset)
+shapiro.test(dataset)
+# One sample parametric test
+t.test(dataset)
+```
+
+#### One sample Sign-test / non parametric (slide 2.27)
+
+Assumptions: - The sign test assumes that the data is a random sample
+from a population with a certain median m. (no checks)
+
+The sign test computes the number of values bigger than a reference
+value m0 (for example grades above 6) and compares this with expected
+number of values above reference (given a probability of being above
+this value). So here it expects half of the grades to be above 6 and
+half of it below. In other words the median here is 6.
+
+```{r}
+t = sum(dataset>m0) # How often is value above reference value (Xi > m0)
+# One sample non-parametric test
+binom.test(t,length(dataset),p=0.5) # If p-value<0.05 we can reject location of m0 as median for the data
+```
+
+#### One sample Wilcoxon Signed Rank-test / non parametric (slide 2.27)
+
+Assumptions: - The Wilcoxon signed rank test assumes that the data is a
+random sample from a *symmetric* population with a certain median m.
+This is a stronger assumption than the one for the sign test!
+
+Test checks whether ranks over the absolute differences between values
+and reference median m0 (value_i - m0) are equally distributed below the
+mean as above the mean.
+
+```{r}
+# Assumption check:
+hist(dataset, freq=FALSE) # if it looks symmetrical around a median than okay
+
+# # Example:
+# examresults-6  # data - m0
+# rank(abs(examresults-6)) # ranks fron absolute differences
+# rank(abs(examresults-6))[examresults-6>0] # ranks from values above m0
+# sum(rank(abs(examresults-6))[examresults-6>0]) # sum of these ranks should be similar to ranks below m0
+
+# One sample non-parametric test
+wilcox.test(dataset) # # If p-value<0.05 we can reject location of m0 as median for the data
+```
+
+## Two Sample tests
+
+### Paired
+
+#### Paired T-test / parametric (slide 3.3)
+
+Assumptions: - The differences between the two samples are assumed to be
+normally distributed. H0: - mean of the differences is 0 (so no
+difference between samples) Tests whether there is a difference in
+outcomes between someone/something in two situations(f.e. before/after)
+
+```{r}
+# Assumption check:
+qqnorm(dataset1-dataset2)
+# Test
+t.test(dataset1, dataset2, paired=TRUE) # if p-value below 0.05 two samples come from different distribution
+```
+
+#### Pearson Correlation test / parametric (slide 3.12)
+
+Assumptions: - Both dataset 1 and dataset 2 are normally distributed.
+H0: - There is no correlation between points in dataset1 and dataset2
+(rho = 0). Test whether there is correlation between two datasets (+
+means the higher X_i the higher Y_i & - means the higher X_i the lower
+Y_i).
+
+```{r}
+# Assumption check:
+par(mfrow=c(2,1))
+qqnorm(dataset1)
+qqnorm(dataset2)
+# Pearson correlation test:
+cor.test(dataset1, dataset2,  method = "pearson")
+```
+
+#### Spearman's rank Correlation test / non-parametric (slide 3.13)
+
+Assumptions: - None. H0: - There is no correlation between points in
+dataset1 and dataset2 (rho = 0). Test whether there is correlation
+between two datasets (+ means the higher X_i the higher Y_i & - means
+the higher X_i the lower Y_i). Absolute value of 1 means perfect linear
+relationship.
+
+```{r}
+cor.test(dataset1, dataset2,  method = "spearman")
+```
+
+#### Permutation test / non-parametric (slide 3.18)
+
+Assumptions: - None. H0: - There is no difference between the
+distributions of X and Y within pairs. Test whether two sets of data are
+different by creating surrogate data samples where the labels (as if
+datapoints can be from the other row) are swapped (to see whether the
+real labels are actually extreme or could in fact be very normal)
+
+```{r}
+mystat=function(x,y) {mean(x-y)}
+B=1000
+tstar=numeric(B)
+for (i in 1:B){
+  datasetstar=t(apply(cbind(dataset[,1],dataset[,2]),1,sample))
+  tstar[i]=mystat(datasetstar[,1], datasetstar[,2])
+}
+
+t=mystat(dataset[,1],dataset[,2])
+# same as in earlier bootstrapping techniques
+hist(tstar)
+pl=sum(tstar<myt)/B
+pr=sum(tstar>myt)/B
+p=2*min(pl,pr)
+p # if the p-value is significant the two distributions have different means
+```
+
+### Non-paired (independent)
+
+#### Non-paired T-test (slide 3.27)
+
+Assumptions: - Both dataset 1 and dataset 2 are normally distributed.
+H0: - The means of the two data samples are equal u=v
+
+We test the null hypothesis H0 : u = v that the means of the populations
+are the same.
+
+```{r}
+# Assumption check:
+par(mfrow=c(2,1))
+qqnorm(dataset1)
+qqnorm(dataset2)
+# Test
+t.test(dataset1, dataset2) # p-value below 0.05 -> means are different
+```
+
+#### Mann-Whitney test (slide 3.31)
+
+Assumptions: - The Mann-Whitney test assumes that the sample X1, . . ,XM
+stems from population F and sample Y1, . . . ,YN stems from population
+G. (Whatever the fuck dit betekent) H0: - F = G in words, the
+populations are the same. Test based on ranks to determine whether
+samples come from different or the same populations. Based on ranks so
+it looks at the location of the medians. Large values of T indicate that
+F is shifted towards the right from G, i.e. that X-values are bigger
+than Y -values.
+
+```{r}
+# Assumption check: None
+# Test
+wilcox.test(dataset1, dataset2) # f,g so large t means that dataset 1 is shifted towards the right.
+```
+
+#### Kolmogorov-Smirnov test (slide 3.33)
+
+Assumptions: - Kolmogorov-Smirnov test assumes that the sample X1, . .
+,XM stems from population F and sample Y1, . . . ,YN stems from
+population G. (Whatever the fuck dit betekent) H0: - F = G in words, the
+populations are the same. The Kolmogorov-Smirnov test is based on the
+differences in the (summed) histograms of the two samples.
+
+```{r}
+# Assumption check: None
+# Test
+ks.test(dataset1, dataset2) # test statistic computes the maximal vertical difference in summed histograms
+```
+
+## K-sample tests
+
+#### One-way Anova / parametric (slide 4.3)
+
+*Numerical outcome Y, a factor that can be fixed at I levels*
+Assumptions: - Assume that these samples are obtained independently from
+I normal populations *with equal variances*. - Balanced (randomized)
+design preferable! Same number of observations per group. H0: - The
+means for all factor levels are the same (no factor effect).
+
+The test statistic for the anova test is the F statistic = "Between
+groups Sum of Squares"/ "Within groups Sum of Squares". One sided, so
+the larger F the more evidence for rejecting H0.
+
+```{r}
+# Test:
+model = lm(outcome~factor)
+anova(model)
+# summary(model) # for the estimated values
+# Assumption check for model:
+qqnorm(residuals(model)) # qqplot for residuals corrected for the different population means
+```
+
+#### Kruskal-Wallis / non-parametric (slide 4.18)
+
+Alternative (based on ranks) if the data for the one way Anova is
+non-normal (generalisation of Mann-Whitney test). Assumptions: - Assume
+that these are sampled independently from I populations - Balanced
+(randomized) design preferable with at least 6 observations per group!
+H0: - Distributions for all levels are equal
+
+```{r}
+# sum(dataset[dataset$factor_level])
+kruskal.test(outcome~factor)
+```
+
+#### Permutation test / non-parametric (slide 4.25)
+
+Same as Anova but without assumptions even unbalanced design is okay.
+Design: - Select I different labels - Select Ni experimental units
+randomly from the population of label i. - Perform the experiment N1 +
+N2 + . . . + NI times, independently. H0: - Distributions for all levels
+are equal In this permutation test for each surrogate sample the sum of
+squares over a linear model is computed to observe how extreme (low) the
+sum of squares over the actual model is.
+
+```{r}
+mystat=function(x){sum(residuals(x)^2)} # function to compute sum of squares over real and surrogate data
+B=1000
+tstar=numeric(B)
+for (i in 1:B) {
+  sampled_factor=sample(factor) ## permuting the labels
+  tstar[i]=mystat(lm(outcome~sampled_factor)) # residuals of model on surrogate data
+  }
+myt=mystat(lm(outcome~factor))
+hist(tstar)
+pl=sum(tstar<myt)/B
+p=2*pl # because it only matters how often sum of squares is lower than linear model
+```
+
+#### 2-way Anova / parametric (slide 5.3)
+
+*Numerical outcome Y, two factors that can be fixed at respectively I
+and J levels* Assumptions: - Assume that these samples are obtained
+independently from I normal populations with equal variances. - Balanced
+(randomized) design preferable! Same number of observations per group. -
+Independent errors H0: - No effect from factor A (at I levels) on
+outcome. - No effect from factor B (at J levels) on outcome. - No effect
+from the interaction betwwen A and B on outcome.
+
+The test statistic for the anova test is the F statistic = "Between
+groups Sum of Squares"/ "Within groups Sum of Squares". One sided, so
+the larger F the more evidence for rejecting H0.
+
+```{r}
+# Interaction checks
+interaction.plot(factor1,factor2,outcome)
+interaction.plot(factor2,factor1,outcome) # kind of parallel means no interaction
+
+# Main effect checks
+boxplot(outcome~factor1)
+boxplot(outcome~factor2)
+
+# Test:
+model = lm(outcome~factor1*factor2) # includes both factors and the interaction
+
+# contrasts(factor1)=contr.sum; contrasts(factor2)=contr.sum
+# model=lm(outcome~factor1*factor2); summary(model)  # Overrules default treatment to not having a factor yet
+
+# CHECK FOR FACTORS (as.factor(factor))!
+
+anova(model) # check which variables are significant
+summary(model) # for the estimated values
+
+# Assumption check for model:
+qqnorm(residuals(model)) # qqplot for residuals corrected for the different population means
+plot(fitted(model),residuals(model))
+```
+
+#### Friedman Test (slide 6.4)
+
+Assumption: - Data is not assumed to come from normal distribution.
+Explicitly uses one factor as a block in the test.
+
+```{r}
+friedman.test(outcome,treatment,blocks)
+```
+
+#### ANCOVA (slide 9.4)
+
+*Numerical outcome Y, a factor that can be fixed at I levels and an
+explanatory variable*
+
+```{r}
+model = lm(outcome~factor+explanatory_variable)
+drop1(model, test = "F")
+# The command drop1 is very handy: it performs the tests for the both models,
+# strength~thickness+type and strength~type+thickness at once, whereas the
+# p-values in the output of anova are sequential, as in a step-up strategy. This problem
+# does not arise in (balanced) ANOVA or linear regression, but it does in an unbalanced
+# ANOVA, ANCOVA and mixed models. Another (and the best) way to get correct
+# p-values, e.g., for the factor type: fiber2=lm(strength~thickness,data=fiber),
+# then anova(fiber2,fiber1) will give the right p-values for the factor type.
+summary(model)
+# Assumption check:
+qqnorm(residuals(model)) # qqplot for residuals corrected for the different population means
+plot(fitted(model),residuals(model))
+
+# Interaction?:
+model2=lm(outcome~factor*explanatory_variable);
+
+plot(outcome~explanatory_variable, pch= c(15, 16, 17), col=c("green", "red", "blue"))
+legend(0.64, 4.5, legend=c("level1", "level2", "level3"), pch= c(15, 16, 17), col=c("green", "red", "blue"))
+title("title..")
+abline(lm(loglongevity~thorax,data=flies[activity=="level1",]), col = "green")
+abline(lm(loglongevity~thorax,data=flies[activity=='level2',]), col = "red")
+abline(lm(loglongevity~thorax,data=flies[activity=="level3",]), col = "blue")
+```
+
+## Randomization designs (overview slid 6.33)
+
+#### Randomized one factor (slide 4.5)
+
+```{r}
+# 5 observations for each level I 
+I=4; N=5
+rep(1:I,N)
+sample(rep(1:I,N))
+```
+
+#### Randomized two factors (slide 5.5)
+
+```{r}
+# 3 observations (N) for every combination of factor levels (I*J) (24 in total)
+I=4; J=2; N=3
+rbind(rep(1:I,each=N*J),rep(1:J,N*I),sample(1:(N*I*J)))
+```
+
+#### Randomized one block and one factor (slide 5.24)
+
+In a regular block design every treatment is applied at least once
+within every block. The purpose is to understand the dependence of Y on
+the treatment factor. The block variable is thought (or known) to be of
+influence. It is used to create homogeneous groups of experimental
+units, in which the treatment effect is easier to see and not blurred by
+variation due to the block factor. The treatment effect of the block
+variable is assumed to be the same in all blocks by the design.
+
+```{r}
+I=4; B=5; N=1
+for (i in 1:B) print(sample(1:(N*I)))
+# rows are the different blocks, values in row are the unit ids and the column shows which treatment to use for this unit. So unit 3 to treatment 1.
+```
+
+#### Repeated Measures per unit as block (slide 5.31)
+
+The purpose is to understand the dependence of Y on the treatment
+factor. The same experimental units are used for every treatment,
+because this is thought to reduce "extraneous variation": the units
+serve as blocks. For I = 2 treatments, this is simply the paired sample
+design.
+
+*EXAMPLE The velocity of a ball is measured for different types of
+tennis rackets for a number of players, where every player uses ALL
+TYPES of rackets.*
+
+#### Latin square randomization / incomplete block design (slide 6.11)
+
+In an incomplete block design only a subset of the experiments is
+performed. For full inference it is advisable to choose this subset in a
+"balanced way". For example the following with two block factors with 4
+levels. Now all combinations of block factors with a treatment are not
+feasible, thus it is balanced in the following way:
+
+I II III IV 1 D C B A 2 B D A C 3 C A D B 4 A B C D
+
+#### Cross-over design (slide 6.16)
+
+Setting: An experiment with two numerical outcomes per experimental
+unit, corresponding to two different treatments. Interest is in a
+possible difference between the two outcomes. An order effect of the
+outcomes is suspected.
+
+Design: Take a random sample of experimental units from the relevant
+population. Divide the units at random in two equal groups. Apply the
+treatments in one order to the units in the first group, and in the
+reversed order to the units in the second.
+
+#### Split-plot design (slide 6.24)
+
+EXAMPLE: To study the yield of 4 varieties of a crop under 3 varieties
+of fertilizer a large field is subdividided into 3 *whole plots*, which
+are subdivided into 8 *subplots*. The 3 levels of fertilizers are
+randomized over the 3 whole plots; in each whole plot the 4 varieties
+are randomized over the 8 subplots. The motivation is that it is hard to
+apply fertilizer to small, contiguous plots. The experiment is
+replicated on 2 other fields which serve as blocks. It is suspected that
+the yields within the same whole plot share more similarity than the
+yields from different whole plots.
+
+## Random and Fixed Effects (slide 6.13)
+
+So far we have considered block effects as fixed effects. That is, we
+regard the blocks as predetermined, not as a random selection of all
+availalbe blocks. Alternatively, we can regard the blocks as a random
+selection of all possible blocks (the block population). In that case,
+the effects of the blocks occurring in our experiment are random
+effects.
+
+#### Fixed effect model (slide 6.20)
+
+```{r}
+lm(outcome~treatment+period+random_effect)
+```
+
+#### Mixed effect model (slide 6.22)
+
+If you have both mixed and fixed effects than we speak of mixed effects.
+
+```{r}
+library(lme4);
+lmer(outcome~treatment+sequence+period+(1|random_effect),REML=FALSE)
+```
+
+## Contingency tables
+
+Assumption: - 80 % of Expected values: total \*
+(factor_level_total/total) \* (factor_level_total/total) at least above
+5!! \#\#\#\# Chi square (slide 7.7)
+
+```{r}
+# Assumption check:
+rowsums=apply(dataset,1,sum); colsums=apply(dataset,2,sum)
+total=sum(dataset); expected=(rowsums%*%t(colsums))/total
+round(expected,0)
+
+# test:
+z = chisq.test(dataset) # simulate.p.value=TRUE if warning (bootstrapping p-value)
+residuals(z)
+# z$expected
+```
+
+#### Fisher test for 2x2 (slide 7.12)
+
+```{r}
+fisher.test(dataset)
+```
+
+## Linear Regression
+
+#### Simple linear regression (slide 7.14)
+
+```{r}
+model=lm(outcome~explanatory_variable); summary(model) # similar to pearson correlation test
+plot(outcome~explanatory_variable)
+abline(model)
+# assumptioin check
+qqnorm(residuals(model)) # check whether errors are normally distributed
+plot(fitted(model),residuals(model)) # check whether errors are similar for all fitted values (no cone shape?)
+```
+
+#### Multiple linear regression (slide 7.22)
+
+```{r}
+model=lm(outcome~explanatory_variable1 + explanatory_variable2); summary(model)
+pairs(dataset)
+abline(model)
+# assumptioin check
+qqnorm(residuals(model)) # check whether errors are normally distributed
+plot(fitted(model),residuals(model)) # check whether errors are similar for all fitted values (no cone shape?)
+```
+
+#### Step up (slide 8.5)
+
+In all next steps one explanatory variable is added as follows: -
+compute R2 for the obtained model extended with Xj for each Xj that is
+not (yet) in the model, - select the Xj that yields the highest R2
+increase, - stop when a newly added Xj yields insignificant explanatory
+variables (and when R2 goes not up much).
+
+#### Step down (slide 8.6)
+
+Start with full model, if p-value is larger than 0.05, remove the
+factor.
+
+#### Diagnostics (slide 8.15)
+
+1.  scatter plot: plot Y against each Xk separately (this yields overall
+    picture, and shows outlying values)
+2.  scatter plot: plot residuals against each Xk in the model separately
+    (look at pattern (curved?-\> than log or squared values better to
+    use) and spread)
+3.  geen idee
+4.  scatter plot: plot residuals against each Xk not in the model
+    separately (look at pattern - linear? then include! exponential?
+    include the square)
+5.  scatter plot: plot residuals against Y and \^Y (look at spread)
+6.  normal QQ-plot of the residuals (check normality assumption)
+
+#### Outliers (slide 8.23)
+
+```{r}
+round(residuals(model),2) # residuals lined up
+order(abs(residuals(model))) # final values can be outliers (largest absolute deviance from model)
+model=lm(outcome~explanatory_variable+expected_outlier)
+```
+
+#### Potential point /influence point (slide 8.26)
+
+If the Cook's distance for some data point is close to or larger than 1,
+it is considered to be an influence point.
+
+```{r}
+round(cooks.distance(model),2)
+plot(1:6,cooks.distance(model),type="b") # change 1:6 for amount of datapoints
+```
+
+#### Colinearity (slide 8.30)
+
+Problem that two variables describe exactly the same thing. Graphical
+ways to investigate collinearity: - scatter plot of Xi against Xj for
+all i, j (pairwise collinearities). Look whether plot of two variables
+go along diagonal. Numerical way to investigate collinearity: - pairwise
+linear correlation of Xi and Xj for all combinations i, j.(Pearson) -
+variance inflation factor of BETAj for all j (check whether these are
+high). Rule of thumb: VIFj 's larger than 5 indicate that is unreliable.
+
+```{r}
+round(cor(dataset),2)
+pairs(dataset)
+
+model=lm(outcome~explanatory1+explanatory2+explanatory)
+vif(model)
+```
+
+## Generalized Linear models
+
+#### Logistic (slide 10.15)
+
+Logistic regression can be used for factorial experiments, in a
+regression setting, for ANCOVA, and for experiments with blocks.
+
+```{r}
+model = glm(outcome~explanatoryV1+explanatoryV2+factor+factor,family=binomial)
+summary(model)
+# odds of succesfull outcome = P(outcome=1)/P(outcome=0) = e^{estimate1 + estimate2...}
+# OR
+# log(odds of succesfull outcome) = log(P(outcome=1)/P(outcome=0)) = estimate1 + estimate2...
+
+# A change (delta) in the linear predictor multiplies the odds by e^{delta}
+
+drop1(model,test="Chisq") # note'Chisq' here instead of F
+
+# prediction:
+# predict(model,newdata,type="response") # slide 10.24 shows what you're really doing here
+# newdata=data.frame(age="70",alc="20",tob="35")
+
+# Interaction?
+model2=glm(outcome~factor*factor,family=binomial)
+anova(model2,test="Chisq") # only the last p-value is relevant
+```
+
+#### Poisson (slide 10.26)
+
+*Outcome Y that is a count.*
+
+```{r}
+model = glm(outcome~explanatoryV1+explanatoryV2+factor+factor,family=poisson())
+drop1(model,test="Chisq") # note'Chisq' here instead of F
+summary(model)
+# lambda = count = e^{estimate1 + estimate2...}
+# OR
+# log(lambda) = log(count) = estimate1 + estimate2...
+```

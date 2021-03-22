@@ -19,7 +19,7 @@ bread <- read.table("bread.txt", header=TRUE)
 attach(bread)
 ```
 
-### A)
+### A) [V]
 
 ```{r}
 I=3;J=2;N=3 
@@ -28,7 +28,7 @@ colnames(test_division) = c("slice of bread", "environments", "humidity")
 test_division
 ```
 
-### B)
+### B) [V]
 
 ```{r, fig.width= 10, fig.height=5}
 par(mfrow=c(1,2))
@@ -41,7 +41,7 @@ interaction.plot(environment, humidity, hours, ylab="Mean hours until decay", xl
 
 From the Boxplots we see that the variance of wet is quite large, and that the mean of 'cold' is quite high. If we look at the interaction plot we see that not all lines are parallel, and that intermediate and warm also cross each other when going from dry to wet. Especially the fact that not all lines are parallel indicates that there is interaction between the humidity and the environment, probably strongest between 'wet' and 'intermediate'/'warm'.
 
-### C)
+### C) -0.2, it's better to use summary function too to see what are the effects and comment on them using the estimates
 
 ```{r}
 environment=as.factor(environment); humidity=as.factor(humidity)
@@ -50,7 +50,7 @@ breadaov=lm(hours~environment*humidity); anova(breadaov)
 
 As visible in the analysis, the p-value for testing H0: alpha~i~ = 0 for all i is 2.461e-10; for H0: beta~j~=0 for all i is 4.316e-06; for H0: gamma~ij~=0 for all (i,j) is 3.705e-07. So, there is indeed evidence for interaction between the environment and the humidity, as the p-value is lower than 0.05. In other words the impact of the environment on the number of hours before decay depends on the temperature level. The warmer it is the faster the decay goes in the wet humidity in comparison with the dry humidity.
 
-### D)
+### D) -0.2, it's not a good question because of the interaction effect
 
 ```{r}
 anova(breadaov)
@@ -64,7 +64,7 @@ summary(breadaov)
 
 Nonetheless the summary can give us more information about the influence of individual factors on the decay. Here we can see that the estimated effect of "intermediate" or "warm" temperatures shortens the decay with respectively 124 and 100 hours in comparison with the "cold" temperature. The humidity is slightly less influencing. A "wet" humidity stretches out the decay by approximately 72 hours. So these results suggest the temperature is of greater influence than the humidity. So this is a valid question to ask.
 
-### E)
+### E) [V]
 
 ```{r, fig.width=6, fig.height=2}
 par(mfrow=c(1,3))
@@ -95,7 +95,7 @@ searchengine <- read.table("search.txt", header=TRUE)
 attach(searchengine)
 ```
 
-### A)
+### A) [V]
 
 ```{r}
 # Make table with available information per participant
@@ -110,6 +110,20 @@ I=3;B=5;N=1
 a = matrix(0, nrow=B, ncol=N*I, byrow=TRUE)
 for (i in 1:B) 
     a[i,] = (sample(1:(N*I)))
+
+#### ADDED:
+#### 
+# Create randomization table with student id's
+I=3;B=5;N=1
+b = matrix(0, nrow=B, ncol=N*I, byrow=TRUE)
+for (i in 1:B) {
+    i
+    lower = i*I - 2
+    higher = i*I
+    b[i,] = (sample(lower:higher))
+}
+#### 
+
 # Use randomization table for filling in the treatments per participant id
 for (r in 1:B)
     for (c in 1:I)
@@ -117,11 +131,14 @@ for (r in 1:B)
 # Print randomization table and assigned treatments to participant with a certain skill
 a
 randomized
+b
 ```
 
 In the former table each row corresponds to one block, in other words a group with the same type of students (similar skills). Then inside these blocks we see the 3 different interface designs (treatments). In the latter table the randomization technique is applied to the 15 students. This table shows the id of the student together with its skills (which of course is fixed, since this is given and we cannot modify this) and finally which treatment the student should get.
 
-### B)
+**Last one shows table with the blocks as rows, interfaces as columns and the corresponding id's of the students (divided according to the blocks) as values, each block is randomized wrt the interface**
+
+### B) [V]
 
 ```{r}
 par(mfrow = c(1,2))
@@ -142,7 +159,7 @@ When looking at the boxplots we see all boxes have similar variances and we see 
 
 The analysis of the Variance Table shows us that the p-value for interface is below 0.05, meaning that it significantly influences the time it takes for students to find a certain product. So, the interface effects are significantly different from 0. The interface that requires the longest search time is interface3 as becomes clear from the summary of the anova (the time for finding an article is estimated 4.46 seconds longer than for interface1). The intercept shows the estimated search time for interface1 and skill1. All other estimates are positive meaning that students require more time finding a product for all other skill levels and interfaces. Therefore the combination skill level 1 and interface 1 give the shortest searching time. The time it takes a typical user of skill level 3 to find the product on the website if the website uses interface 3 is: the intercept + estimate skill level 3 + interface level 3 = 15.01 + 4.46 + 3.03 = 22.50 seconds.
 
-### C)
+### C) [V]
 
 ```{r}
 par(mfrow=c(1,2))
@@ -152,7 +169,7 @@ plot(fitted(searchaov),residuals(searchaov), main= "Residuals searchengine vs fi
 
 The points from the data set form a roughly straight line in the QQ-plot and the spread of the residuals vs the fitted values seems homogenous. Therefore the data seems to be normally distributed and having equal population variances.
 
-### D)
+### D) [V]
 
 ```{r}
 friedman.test(time, interface, skill)
@@ -160,7 +177,7 @@ friedman.test(time, interface, skill)
 
 The Friedman test shows there is a significant treatment effect for the interface level since the p-value is below the alpha value 0.05.
 
-### E)
+### E) [V]
 
 ```{r}
 aovsearch_ow = lm(time~interface)
@@ -183,7 +200,7 @@ attach(cow)
 per = as.factor(per); id = as.factor(cow$id)
 ```
 
-### A)
+### A) [V]
 
 ```{r}
 cowlm=lm(milk~id+per+treatment)
@@ -193,7 +210,7 @@ summary(cowlm)
 
 The repeated measures fixed effect model shows no significant difference in milk production for the different treatments. The estimated difference in milkproduction between the two feedingstuffs is -0.510 meaning that the milkproduction for treatmentA is estimated 0.510 higher than treatmentB. It seems there is an effect of the period that the cow takes it's feedingstuff, since the p-value for per is below alpha (0.05). Also the Id of the cow is of significant influence in the milk production, which makes sense since not every cow produces the same amount of milk.
 
-### B)
+### B) [V]
 
 ```{r}
 library(lme4)
@@ -204,7 +221,7 @@ anova(cowlmer1, cowlmer)
 
 The code above gives the implementation of the cross-over design with the cow id's as random effects. The p-value for finding whether the treatment influences the milk production is found by refitting the model without the treatment. The comparison of the models show there is no significant effect that the models are different from each other. Thus the treatment is not influencing the milk production significantly (the p-value is higher than alpha). This leads to the same conclusion as for question a) (where the fixed effect model also did not find a significant influence for the treatment).
 
-### C)
+### C) : -0.3, insufficient conclusion. this is a paired t-test, not taking into account the period effect (significant, p=0.01628), hence it is wrong. The paired t-test assumes that the differences are from ONE normal distribution, whereas here we have a mix of two samples from two different normal distributions (one for each order).
 
 ```{r}
 t.test(milk[treatment=="A"],milk[treatment=="B"],paired=TRUE)
@@ -223,11 +240,11 @@ austen <- read.table("austen.txt", header=TRUE)
 attach(austen)
 ```
 
-### A)
+### A) [V]
 
 Since we are looking for evidence here of whether someone has skillfully imitated Jane Austen's writing style, a contingency table test for homogeneity is most appropriate. Were we to test for independence, the null hypothesis would be that the row variable and column variable are independent, whereas, assuming Jane Austen has her own writing style, we assume that the rows are dependent upon at least the first 3 columns. When testing for homogeneity we can test whether the distributions over columns / rows are equal, which will help us with comparing the content of the fourth column to the content of the first 3.
 
-### B)
+### B) [V]
 
 ```{r}
 janeausten <- austen[,1:3] # only leave columns from real austen
@@ -240,7 +257,7 @@ style <- rowSums(abs(ja$residuals)); style
 
 When looking at the expected values it definitely looks like 80% of them are over 5, so we can use the chi-squared test. We can see that the p-value suggests there is no reason to assume that the word occurrence depends on the different chapters. Therefore it looks like Austen did a pretty good job in writing stories using a consistent style in word use. The main inconsistencies are in the use of the word "a" in Sand1, where it occurs relatively more often in comparison with other stories. Another inconsistency appears for the word "without" in Emma where it relatively occurs less than in the other chapters. Finally there is an inconsistency in the use of the word "that" in Sand1 that is used relatively less in these chapters. When looking at the summed absolute values of the residuals we see that the inconsistencies (deviations) are strongest firstly for the word 'without', secondly for the word 'a', thirdly for the word 'that', followed by 'with', 'an' and 'this'.
 
-### C)
+### C): -0.2, you should check the condition about expected cells \> 5, here too.
 
 ```{r}
 aus <- chisq.test(austen)
@@ -269,7 +286,7 @@ expensescrime <- read.table("expensescrime.txt", header = TRUE)
 attach(expensescrime)
 ```
 
-### A) \<\> Roel: 6 zinnen
+### A) [V]
 
 ```{r fig.width=10}
 lmcrime <- lm(expend~bad+crime+lawyers+employ+pop,data=expensescrime)
@@ -282,7 +299,7 @@ A potential point is an observation with an outlying value in an explanatory var
 
 We also check the scatterplot of all potential explanatory variables against each other, where we also find some potential points that could be looked at. An example would be the lawyers\~bad graph with a few potential points, as well as bad\~employ. If the estimated parameters change drastically by deleting the potential point, the observation is called an influence point. If the plot of two explanatory variables shows (nearly) a straight line, the two variables are collinear. All plots that have "crime" as one of the two explanatory variables are not collinear, while all other plots seem to be collinear. These collinear plots mean that the two variables explain the same influence on the outcome. We should most likely choose a model with a smaller number of explanatory variables in this particular case.
 
-### B)
+### B) -0.2, you should at least mention a model with influence points removed
 
 First the step-up method is considered with expend as the response variable.
 
@@ -331,7 +348,7 @@ Now all p-values are below alpha, meaning that we don't need to delete any more 
 
 The models for step-up and step-down are not the same in this case, meaning that we have to pick one which is the better fit. Because the R^2^ value for step-up is 0.954 with just 1 variable, and the R^2^ value for step-down is 0.963 with 2 variables, the step-up model is preferred, since the difference is too small to really make much of a difference in estimating the expend, meaning that we base our decision on the smallest number of variables.
 
-### C) \<\> ROEL
+### C) [V]
 
 ```{r ,fig.height=7.5, fig.width=5}
 par(mfrow=c(3,2))

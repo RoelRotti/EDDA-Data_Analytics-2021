@@ -10,10 +10,12 @@ editor_options:
 ```{r}
 #install.packages('pander')
 library(pander)
-#panderOptions('round', 2)
-#panderOptions('keep.trailing.zeros', TRUE)
 options(digits=3)
 ```
+
+Exercise is correct: [V]
+
+Exercise is not (fully) correct: see text
 
 # Exercise 1. Birth weights
 
@@ -23,7 +25,7 @@ data = read.table("birthweight.txt", header=TRUE)
 birthweight = data
 ```
 
-## a: [V]
+## a: [V] : small correction (but other method correct)
 
 ```{r normality plots, fig.height=2, fig.width=6}
 plot3 <-function(x, title, xaxishist){
@@ -72,7 +74,7 @@ instances). Subtracting this margin error from the sample mean gives us
 the lower bound of the confidence interval. Adding this margin error to
 the sample mean gives us the upper bound of the confidence interval.
 
-## b: small correction (but other method correct)
+## b: [V]
 
 ```{r t test birthweight alpha 0.1}
 # t-test with alpha = 0.1
@@ -135,17 +137,22 @@ differences:
 
 # Exercise 2. Power function of the t-test
 
-## a & b & c
+## a & b & c [V] but: combine in 1 figure
 
 ```{r, fig.height=2, fig.width=6}
 n=m=30; mu=180; nu=175; sd=5
 ## Return power function
 returnpower <- function(n,m,mu,nu,sd,B=1000){
   p=numeric(B) # p will be an array of realized p-values
-  for (b in 1:B) {x=rnorm(n,mu,sd); y=rnorm(m,nu,sd)
-                p[b]=t.test(x,y,var.equal=TRUE)[[3]]}
+  for (b in 1:B) {
+    x=rnorm(n,mu,sd); 
+    y=rnorm(m,nu,sd)
+    p[b]=t.test(x,y,var.equal=TRUE)[[3]]
+  }
   powerp=mean(p<0.05)
-  return(powerp)}
+  return(powerp)
+}
+
 ## Define the lists for the sequence of nu
 nuseq = seq(175,185,by=0.25)
 ## Calculate the power for multiple nu
@@ -154,8 +161,8 @@ plotpower <- function(n,m,mu,nuseq,sd){
   for(a in 1:length(nuseq)){
     powernu[a] = returnpower(n,m,mu,nuseq[a],sd)
   }
-  {plot(nuseq,powernu, main=paste("n=m=", n,", mu=",mu,", sd=", sd  ),
-        xlab = "nu", ylab="Power", ylim=c(0,1))}
+  plot(nuseq,powernu, main=paste("n=m=", n,", mu=",mu,", sd=", sd  ),
+        xlab = "nu", ylab="Power", ylim=c(0,1))
 } 
 ## Plot
 par(mfrow=c(1,3))
@@ -166,7 +173,7 @@ n=m=30; mu=180 ; sd=15
 plotpower(n,m,mu,nuseq,sd)
 ```
 
-## d
+## d [V]
 
 From the above graphs we can witness the influence of the parameters on
 the power. Since mu=180 and we are measuring the power of nu ideally we
@@ -199,7 +206,7 @@ rejected is rejected), while in a the power reaches values of almost one
 data = read.table("telephone.txt", header=TRUE)
 ```
 
-## a
+## a [V]
 
 ```{r, fig.height=2, fig.width=6}
 plot3(data$Bills, "bills", 'price')
@@ -223,7 +230,7 @@ this data is taken out of the dataset.
 no_zeroes_data = data$Bill[data$Bill>0] 
 ```
 
-## b
+## b: [V] : for not finding lambdas for which H0 is not rejected. It would be more appropriate to have the step size reduced to 0.001 so that you would have gotten 10 lambda values from 0.020 - 0.029 (and not just 0.02 for which I am giving 0.2 points) for which the p-value is more than 0.05.
 
 ```{r}
 bootstrap <- function(t){
@@ -272,7 +279,7 @@ phonebills <- sort(data$Bills, decreasing = TRUE)
 lines(max(phonebills)*dexp(0.02*seq(1,length(phonebills),by=1)))
 ```
 
-## c
+## c [V]
 
 ```{r}
 CI95median <- function(x){
@@ -294,7 +301,7 @@ ci = CI95median(no_zeroes_data)
 The 95% bootstrap confidence interval for the population median of bills
 is [`r ci`] around its median: `r t1` .
 
-## d
+## d [V] : Use sample standard deviation ('sd(x)')
 
 ```{r}
 estimated_mean = mean(no_zeroes_data) #sample mean
@@ -316,8 +323,12 @@ lambda
 # computing the CI using the above formula:
 n=length(no_zeroes_data)
 mediaan = log(2)/lambda
-std = sqrt(1/lambda**2)
+##### std = sqrt(1/lambda**2)
+##### CORRECTION: USE SAMPLE STANDARD DEVIATION
+std = sd(no_zeroes_data)
+#####
 ci = qt(0.95,df=n-1)*std/sqrt(n)
+
 upperbound = mediaan + ci
 lowerbound = mediaan - ci
 upperbound;lowerbound;mediaan
@@ -326,30 +337,40 @@ upperbound;lowerbound;mediaan
 So the 95% confidence interval of the population median is
 [`r upperbound`, `r upperbound`] around its median `r mediaan`.
 
-## e
+## e : State the hypothesis, also in code. Also state the probability you are testing. -0.4
 
 ```{r}
 more = no_zeroes_data>=40
 more2 = sum(more, na.rm = TRUE)
-binom.test(more2,length(no_zeroes_data))
+##### CORRECTION
+##### binom.test(more2,length(no_zeroes_data))
+binom.test(more2,length(no_zeroes_data), alternative = "greater")
+##### 
 ten_test = no_zeroes_data<10
 ten = sum(ten_test, na.rm=TRUE)
-binom.test(ten,length(no_zeroes_data))
+##### CORRECTION
+##### binom.test(ten,length(no_zeroes_data))
+#binom.test(ten,length(no_zeroes_data), alternative = "less")
+binom.test(ten,length(no_zeroes_data)/4, alternative = "less")
+##### 
 ```
 
 We have used the sign test for this problem, because we're working with
-one sample which is not normally distributed. From the test, we can
+one sample which is not normally distributed **(and not symmetric so
+Wilcoxon Signed Rank test is not possible)**. From the test, we can
 conclude that the null hypothesis of the median being greater or equal
-to 40 should not be rejected, because the p-value is 0.07, which is
+to 40 should not be rejected, because the p-value is **1**, which is
 greater than the alpha of 0.05.
 
 In the second sign test, it is evident that the probability of success
 is 22.9% of the bill being less than 10 euro, which is of course less
 than the proposed 25%.
 
+**What to do with probability of success???**
+
 # Exercise 4: Energy drink
 
-## a
+## a [V]
 
 ```{r, fig.height=2, fig.width=6}
 run <- read.table("run.txt", header=TRUE)
@@ -368,7 +389,7 @@ Shapiro-Wilk test shows a p-value above 0.05, indicating the assumption
 of the normal distribution cannot be rejected, it seemed more
 appropriate to use the spearman rank test).
 
-## b
+## b [V]
 
 ```{r fig.height=2}
 library(dplyr)
@@ -401,7 +422,7 @@ group has a positive mean of the differences, indicating a decrease in
 running speed, whereas the lemonade group has an increase in running
 speed.
 
-## c
+## c [V]
 
 ```{r fig.height=2, fig.width=4}
 par(mfrow=c(1,2))
@@ -416,7 +437,7 @@ the two sample t-test is used. The value that is printed is the p-value,
 which is higher than 0.05, so we can't reject the null hypothesis (which
 is that the means of the two populations are the same).
 
-## d
+## d: Almost correct! Your reasoning is interesting. Another factor that contributes to the results of the experiments is being tired after the first running. 30 minutes is not enough time and more time between running stages should be considered for the experiment design in b to work. Experiment in c however, is still valid. -0.2
 
 If the main aim was to test whether drinking energy drink speeds up
 running you could wonder why the control group drank lemonade. A
@@ -435,7 +456,7 @@ the same results.
 
 # Exercise 5: Chickweights
 
-## a
+## a: no normality check -0.1
 
 The data is unpaired since we have two groups of experimental unit. It
 would be the same as testing different types of fertilizer on a plot of
@@ -474,7 +495,7 @@ test especially we know the medians are equal, and from the
 Kolmogorov-Smirnov test we know the means are equal. The last test is
 the most powerful, especially for this a-normal data.
 
-## b
+## b [V]
 
 ```{r}
 is.numeric(chickweights$weight); is.factor(chickweights$feed)
@@ -503,7 +524,7 @@ two supplements thus share the first place. From the above summary we
 see that all other supplements do differ significantly and are all way
 lower than the best two.
 
-## c
+## c: plot fitted against residuals is absent.
 
 The assumptions in the one-way Anova are that samples are obtained
 independently from normal populations with equal variances.
@@ -521,6 +542,9 @@ boxplot(chickweights$weight[chickweights$feed=='linseed'],
         names = c('linseed', 'sunflower', 'horsebean', 'soybean', 'casein', 'meatmeal'))
 # Check normality
 qqnorm(residuals(chickweights_aov))
+#### CORRECTION:
+plot(fitted(chickweights_aov), residuals(chickweights_aov))
+#### 
 ```
 
 ```{r}
@@ -540,7 +564,7 @@ variance of the data in each diet is approximately the same.
 Additionally the results of the shapiro test do not provide evidence for
 non-normally distributed weights.
 
-## d
+## d: -0.2 No mention of the differences between the conclusions drawn from the Kruskal-Wallis test and ANOVA. (Nonparametric test (like Kruskal-Wallis test) has less power than parametric tests (like ANOVA-test) as the former doesn't need the data to be normal whereas ANOVA requires normality.
 
 ```{r}
 attach(chickweights); kruskal.test(weight, feed)

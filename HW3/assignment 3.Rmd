@@ -206,6 +206,8 @@ fisher.test(sex_vs_survive) # Fisher since 2x2
 
 ```
 
+**CHECK ASSUMPTIONS: \>80% OF DATA ENTRIES HAVE COUNTS \> 5**
+
 To test this using contingency tables we have to create 2 tables: survive vs. class & survive vs. sex. It is also possible to summarize this info into one table by creating a table sex vs. class and having the percentages of people from the groups who survived in the table. The problem with this method is that it is no longer a contingency table, since a contingency table contains counts. We thus test with the aforementioned tables (fisher for survive vs. sex since this is a 2x2 table) and both results are significant with a p-value of 2.2e-16 (only the one of the fisher test is a true p-value however, the one of the chisq-test is an estimate by definition), meaning Sex and Class had a significant effect on survival.
 
 ### F)
