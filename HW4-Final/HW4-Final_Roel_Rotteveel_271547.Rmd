@@ -1,0 +1,102 @@
+---
+title: "Assignment 4 - Final Assignment"
+author: "Roel Rotteveel (271547)"
+date: "22-3-2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# EDDA Assignment 3
+
+## Exercise 1: Fruit Flies
+
+```{r, include=FALSE}
+XXXXXXX <- read.table("XXXXXXX.txt", header=TRUE)
+attach(XXXXXXX)
+```
+
+### A)
+
+```{r}
+```
+
+### B)
+
+```{r}
+
+```
+
+### C)
+
+```{r}
+```
+
+### D)
+
+### E)
+
+```{r, fig.width= 8, fig.height=2}
+```
+
+### F)
+
+```{r}
+```
+
+```{r, include=FALSE}
+detach(XXXXXXX)
+```
+
+## Exercise 2: Titanic
+
+```{r, include=FALSE}
+YYYYYYYY <- read.table("YYYYYYYY.txt", header=TRUE)
+
+attach(YYYYYYYY)
+```
+
+### A)
+
+```{r, fig.width= 8, fig.height=3}
+par(mfrow=c(1,3))
+
+```
+
+### B)
+
+```{r}
+
+```
+
+### C)
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+| Class \\ Sex | Male  | Female |
+|--------------|-------|--------|
+| 1            | 0.196 | 17.943 |
+| 2            | 0.042 | 3.847  |
+| 3            | 0.014 | 1.268  |
+
+### D)
+
+### E)
+
+```{r}
+
+```
+
+### F)
+
+```{r, include=FALSE}
+detach(YYYYYYYY)
+```

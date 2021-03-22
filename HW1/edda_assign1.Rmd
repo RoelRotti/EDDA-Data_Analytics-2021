@@ -208,9 +208,9 @@ the mobile phones of this shop are either very cheap or very expensive.
 
 There exist a few 0 values in the data set, meaning that nothing is
 payed during a transaction. As long as the company is not really selling
-free mobile phones, this seems to be odd data. This influences the statistics of the data
-whithout providing extra information.
-Therefore this data is taken out of the dataset.
+free mobile phones, this seems to be odd data. This influences the
+statistics of the data whithout providing extra information. Therefore
+this data is taken out of the dataset.
 
 ```{r}
 no_zeroes_data = data$Bill[data$Bill>0] 
@@ -246,12 +246,11 @@ From the above data we can conclude that if we take the median from the
 'no-zeroes-data' there is significant result that the data stems from
 the population of exp(0.03). If we take the median from the data of all
 bills there is significant result that the data stems from exp(0.02). If
-we plot this we indeed see the samples
-somewhat resembling the exponential distributions. Note that we scale
-the exponential here to allow for the easiest to read graph. Where the
-exponential function usually intersects the y-axis at 1 we now scale it
-such that it intersects the y-axis at the same place as the telephone
-function:
+we plot this we indeed see the samples somewhat resembling the
+exponential distributions. Note that we scale the exponential here to
+allow for the easiest to read graph. Where the exponential function
+usually intersects the y-axis at 1 we now scale it such that it
+intersects the y-axis at the same place as the telephone function:
 
 ```{r, fig.height=3, fig.width=6}
 par(mfrow=c(1,2))
@@ -306,7 +305,6 @@ lambda = 1/estimated_mean
 lambda
 ```
 
-
 ```{r}
 # computing the CI using the above formula:
 n=length(no_zeroes_data)
@@ -317,7 +315,9 @@ upperbound = mediaan + ci
 lowerbound = mediaan - ci
 upperbound;lowerbound;mediaan
 ```
-So the 95% confidence interval of the population median is [`r upperbound`, `r upperbound`] around its median `r mediaan`.
+
+So the 95% confidence interval of the population median is
+[`r upperbound`, `r upperbound`] around its median `r mediaan`.
 
 ## e
 
@@ -395,6 +395,7 @@ running speed, whereas the lemonade group has an increase in running
 speed.
 
 ## c
+
 ```{r fig.height=2, fig.width=4}
 par(mfrow=c(1,2))
 run$difference=(run$after-run$before)
@@ -451,20 +452,20 @@ t-test assumes both samples come from a normal population however. Given
 the small sample size one could argue this for meatmeal, but the
 normality of sunflower seems very doubtful.
 
-For the Mann-Whitney test, the outcome of the test
-is insignificant, with a p-value of 0.07. This means that the
-null-hypothesis is not rejected and the difference in medians is 0.
+For the Mann-Whitney test, the outcome of the test is insignificant,
+with a p-value of 0.07. This means that the null-hypothesis is not
+rejected and the difference in medians is 0.
 
 The Kolmogorov-Smirnov test also yields an insignificant result, with a
 p-value of 0.1. Now the H-0 of equal means is not rejected, meaning the
 means of the two populations are similar.
 
-So as we use more powerful tests and more specific for a-normal
-data, the p-values increase. Only the unpaired t-test is significant but
-this test relies on normality, which the data is not. From the
-Mann-Whitney test especially we know the medians are equal, and from
-the Kolmogorov-Smirnov test we know the means are equal. The last test
-is the most powerful, especially for this a-normal data.
+So as we use more powerful tests and more specific for a-normal data,
+the p-values increase. Only the unpaired t-test is significant but this
+test relies on normality, which the data is not. From the Mann-Whitney
+test especially we know the medians are equal, and from the
+Kolmogorov-Smirnov test we know the means are equal. The last test is
+the most powerful, especially for this a-normal data.
 
 ## b
 
