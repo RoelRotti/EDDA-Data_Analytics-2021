@@ -306,7 +306,7 @@ abline(lm(loglongevity~thorax,data=flies[activity=='level2',]), col = "red")
 abline(lm(loglongevity~thorax,data=flies[activity=="level3",]), col = "blue")
 ```
 
-## Randomization designs (overview slid 6.33)
+## Randomization designs (overview slide 6.33)
 
 #### Randomized one factor (slide 4.5)
 
@@ -408,7 +408,7 @@ fisher.test(dataset)
 model=lm(outcome~explanatory_variable); summary(model) # similar to pearson correlation test
 plot(outcome~explanatory_variable)
 abline(model)
-# assumptioin check
+# assumption check
 qqnorm(residuals(model)) # check whether errors are normally distributed
 plot(fitted(model),residuals(model)) # check whether errors are similar for all fitted values (no cone shape?)
 ```
@@ -419,14 +419,14 @@ plot(fitted(model),residuals(model)) # check whether errors are similar for all 
 model=lm(outcome~explanatory_variable1 + explanatory_variable2); summary(model)
 pairs(dataset)
 abline(model)
-# assumptioin check
+# assumption check
 qqnorm(residuals(model)) # check whether errors are normally distributed
 plot(fitted(model),residuals(model)) # check whether errors are similar for all fitted values (no cone shape?)
 ```
 
 #### Step up (slide 8.5)
 
-In all next steps one explanatory variable is added as follows: - compute R2 for the obtained model extended with Xj for each Xj that is not (yet) in the model, - select the Xj that yields the highest R2 increase, - stop when a newly added Xj yields insignificant explanatory variables (and when R2 goes not up much).
+In all next steps one explanatory variable is added as follows: - compute R\^2 for the obtained model extended with Xj for each Xj that is not (yet) in the model, - select the Xj that yields the highest R2 increase, - stop when a newly added Xj yields insignificant explanatory variables (and when R2 goes not up much).
 
 #### Step down (slide 8.6)
 
@@ -438,8 +438,10 @@ Start with full model, if p-value is larger than 0.05, remove the factor.
 2.  scatter plot: plot residuals against each Xk in the model separately (look at pattern (curved?-\> than log or squared values better to use) and spread)
 3.  geen idee
 4.  scatter plot: plot residuals against each Xk not in the model separately (look at pattern - linear? then include! exponential? include the square)
-5.  scatter plot: plot residuals against Y and \^Y (look at spread)
-6.  normal QQ-plot of the residuals (check normality assumption)
+5.  **scatter plot: plot residuals against Y and \^Y (look at spread)**
+6.  **normal QQ-plot of the residuals (check normality assumption)**
+
+**=====\> 5&6 ALWAYS \<=====**
 
 #### Outliers (slide 8.23)
 
@@ -458,7 +460,7 @@ round(cooks.distance(model),2)
 plot(1:6,cooks.distance(model),type="b") # change 1:6 for amount of datapoints
 ```
 
-#### Colinearity (slide 8.30)
+#### Collinearity (slide 8.30)
 
 Problem that two variables describe exactly the same thing. Graphical ways to investigate collinearity: - scatter plot of Xi against Xj for all i, j (pairwise collinearities). Look whether plot of two variables go along diagonal. Numerical way to investigate collinearity: - pairwise linear correlation of Xi and Xj for all combinations i, j.(Pearson) - variance inflation factor of BETAj for all j (check whether these are high). Rule of thumb: VIFj 's larger than 5 indicate that is unreliable.
 
