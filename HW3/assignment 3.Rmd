@@ -13,12 +13,18 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Exercise 1: Fruit Flies
 
+[*To investigate the effect of sexual activity on longevity of fruit flies, 75 male fruit flies were divided randomly in three groups of 25. The fruit flies in the first group were kept solitary, those in the second were kept together with one virgin female fruit fly per day, and those in the third group were kept together with eight virgin female fruit flies a day. In the data-file fruitflies.txt the three groups are labelled isolated, low and high. The number of days until death (longevity) was measured for all flies. Later, it was decided to measure also the length of their thorax. Add a column loglongevity to the data-frame, containing the logarithm of the number of days until death. Use this as the response variable in the following.*]{.ul}
+
 ```{r, include=FALSE}
 flies <- read.table("fruitflies.txt", header=TRUE)
 attach(flies)
 ```
 
-### A)
+### A) [V]
+
+[*Make an informative plot of the data. \
+Investigate whether sexual activity influences longevity by performing a statistical test, without taking the thorax length into account. \
+What are the estimated longevities for the three conditions? Comment.*]{.ul}
 
 ```{r, fig.height=4, fig.width=7}
 loglongevity <- log(longevity); flies$loglongevity <- loglongevity
@@ -36,7 +42,12 @@ summary(flies_wrong)
 
 According to an anova test, the influence of sexual activity on the loglongevity has a p-value of 1.798e-07, which is smaller than alpha and thus significant. So, we reject H0 (that loglongevity does not depend on the level of factor activity) and conclude that different levels of activity does influence the loglongevity. The estimated loglongevities are (in ascending order): high:3.60, low:3.99, isolated:4.11. Translating these to longevities can be done by using these as exponents. High: `r round(exp(3.60),3)`, Low: `r round(exp(3.99),3)`, Isolated: `r round(exp(4.11),3)` All three have a p-value that is below 0.05, and thus significant. From this we can conclude that more sexual activity for fruit flies actually decreases the loglongevity, and thus decreases the longevity of the fruit fly.
 
-### B)
+### B) [V]
+
+[*Investigate whether sexual activity influences longevity by performing a statistical test, now including
+thorax length as an explanatory variable into the analysis. Does sexual activity increase or decrease
+longevity? What are the estimated longevities for the three groups, for a fly with average thorax
+length?*]{.ul}
 
 ```{r}
 flies_correct = lm(loglongevity~thorax+activity)
@@ -49,7 +60,10 @@ When also including the thorax length as an explanatory variable, we now find th
 
 The average thorax length is `r round(mean(thorax), 3)`, so this results in an average increase of loglongevity of (as added to the intercept): `r mean(thorax)*2.97899`. The estimated loglongevity for the three levels are thus: high: 1.21+2.46=3.68. low: 3.68+0.28=3.97. isolated: 3.68+0.41 = 4.10. Again to obtain the longevities use these values as exponents: high: `r round(exp(3.68), 3)`, low: `r round(exp(3.97), 3)` and isolated: `r round(exp(4.10), 3)`
 
-### C)
+### C) [V]
+
+[*How does thorax length influence longevity? Investigate graphically and by using an appropriate test
+whether this dependence is similar under all three conditions of sexual activity.*]{.ul}
 
 ```{r}
 flies2=lm(loglongevity~thorax,data=flies)
@@ -64,11 +78,15 @@ From observing the plot in a) we see that within each level of the factor activi
 
 Testing for the interaction between factor activity and predictor thorax is then done by including the interaction term activity\*thorax in the model. The p-value for activity:thorax is higher than alpha and thus not significant. Therefore H0 (the interaction between thorax and activity is of no effect on the longevity) is not rejected, i.e. there is no significant interaction between factor activity and predictor thorax. So the dependence is similar under the three conditions.
 
-### D)
+### D) [V]
+
+[*Which of the two analyses, without or with thorax length, do you prefer? Is one of the analyses wrong?*]{.ul}
 
 We prefer the analysis with thorax since this is the most complete analysis & by observing the p-value for thorax in b) we can also clearly see this variable plays a role. Therefore excluding this variable from the analysis would be wrong.
 
-### E)
+### E) [V]
+
+[*Verify normality and heteroscedasticity by making a normal QQ-plot of the residuals, and a residuals ersus fitted plot, for the analysis that includes thorax length.*]{.ul}
 
 ```{r, fig.width= 8, fig.height=2}
 par(mfrow=c(1,4))
@@ -82,7 +100,11 @@ plot(fitted(flies4),residuals(flies4))
 
 (2 left graphs) From the QQ-plot, we find that the residuals seem to be normally distributed, as the line is quite straight. Heteroscedasticity refers to the circumstance in which the variability of a variable is unequal across the range of values of a second variable that predicts is. If the scatterplot of the residuals versus the fitted model has a cone-like shape, this shows that the variability of the dependent variable widens or narrows as the value of the independent variable increases. The plot which shows the residuals versus the fitted model shows that there is no heteroscedasticity, as the plotted points appear very random and not in a cone-like pattern. Although the data is shifted slightly towards the right, we conclude that there is homoscedasticity.
 
-### F)
+### F) [V]
+
+[*Perform the ancova analysis with the number of days as the response, rather than its logarithm. Verify
+normality and homoscedasticity of the residuals of this analysis. Was it wise to use the logarithm as
+response?*]{.ul}
 
 ```{r}
 drop1(flies4,test="F")
@@ -96,6 +118,11 @@ detach(flies)
 
 ## Exercise 2: Titanic
 
+[*On April 15, 1912, British passenger liner Titanic sank after colliding with an iceberg. There were not
+enough lifeboats for everyone onboard, resulting in the death of 1502 out of 2224 passengers and crew. The data file titanic.txt gives the survival status of passengers on the Titanic, together with their names,
+age, sex and passenger class. (About half of the ages for the 3rd class passengers are missing, although
+many of these could be filled in from the original source.) The columns: Name -- name of passenger; PClass -- passenger class (1st, 2nd or 3rd), Age -- age in years, Sex -- male or female, Survived -- survival status (1=Yes or 0=No).*]{.ul}
+
 ```{r, include=FALSE}
 titanic <- read.table("titanic.txt", header=TRUE)
 #install.packages("ggplot2")
@@ -106,7 +133,9 @@ theme_set(theme_pubr())
 attach(titanic)
 ```
 
-### A)
+### A) [V]
+
+[*Study the data and give a few (\>1) summaries (graphics or tables).*]{.ul}
 
 ```{r, fig.width= 8, fig.height=3}
 par(mfrow=c(1,3))
@@ -131,7 +160,9 @@ barplot(c(childsurv, adultsurv), main = "Survival chance of adults vs children",
 
 In the age histogram we see that there are relatively a lot of 20-30 year old. We do however have a lot of missing data for this variable (42%, calculated as mean(is.na(Age)) ) so this histogram is far from truly representative. We extracted that 34% percent of the people survived, and the higher the class was you were in, the higher your chances of survival. Of the adults (18 or older) 77% of the woman survived, as opposed to 17% of the adult man. Of the children 69% survived, where of the adults 34% survived.
 
-### B)
+### B) -0.1 -drop1() is preferable for checking factor's significance.
+
+[*Fit a logistic regression model (no interactions yet) to investigate the association between the survival status and the predictors PClass, Age and Sex. Interpret the results in terms of odds, comment.*]{.ul}
 
 ```{r}
 PClass = as.factor(PClass)
@@ -146,7 +177,11 @@ exp(3.76-2.631357*1)
 
 The odds here are exp{3.76 -1.29\*PClass2nd -2.52\*PClass3rd -0.039\*Age -2.63\*Sexmale} (where PClass and Sexmale are one hot encodings, so 1 if you are in that class and 0 otherwise). This means that your odds change given your characteristics. The intercept is for a female child of age 0 in the 1st class. The more you deviate from this intercept the less likely you are to survive (estimates for all factors and explanatory variables are negative). For example if you are a male your odds decrease by exp{-2.63} = 0.07198072. So your odds to survive become 1/0.071 = 14.08 times worse than when you are a female.
 
-### C)
+### C) -0.4 -Sex amd PClass should be inclueded in the first and second model respectively. -0.1\*2 -correct final model selection. -incorrect value for female probability estimation, it could not bigger than 1 -0.2
+
+[*Investigate the interaction of predictor Age with factor PClass, and the interaction of Age with Sex.
+From this and b), choose (and justify) a resulting model. For this model, report the estimate for the
+probability of survival for each combination of levels of the factors PClass and Sex for a person of age 53.*]{.ul}
 
 ```{r}
 glm3=glm(Survived~Age*PClass,data=titanic,family=binomial)
@@ -176,7 +211,9 @@ This means that the estimates for probability of survival for the combinations o
 | 2            | 0.042 | 3.847  |
 | 3            | 0.014 | 1.268  |
 
-### D)
+### D) [V]
+
+[*Propose a method to predict the survival status and a quality measure for your prediction and describe how you would implement that method (you do not need to implement it).*]{.ul}
 
 Fitting the model is similar to training a model in ML . After fitting we thus obtain theta-hat which we can use when predicting the success probability of new data. To generate a quality measure for our prediction we would need to split the data in training- and testing-data. The most common ratio for this is 80:20. In order to train a system well on training data, it is good to account for class imbalance (thus train as much on people that survived as on people that did not survive 50/50 instead of the 30/70 division there is in our dataset). Balanced classes can be obtained by oversampling on the survivors or undersampling on the non-survivors. On this data a model should then be fitted.
 
@@ -184,7 +221,9 @@ Then we could use this model (similar to above) to calculate the probability of 
 
 To test our model we could compare Y-hat with the true survival of rows in our testing data which we splitted from our original data in the beginning. Accuracy is not a very good metric to check whether our model performs well since there can be class imbalance in the test set as well, meaning that predicting everyone dies still gives an acuracy score of 70 % (given that 30% survived). Therefore using for instance precision and recall can give us more insight in the performance of our model.
 
-### E)
+### E) correct. -assumptioncheck for contigency table needed.
+
+[*Another approach would be to apply a contingency table test to investigate whether factor passenger class (and gender) has an effect on the survival status. Implement the relevant test(s).*]{.ul}
 
 ```{r}
 class_vs_survive = table(titanic$Survived, titanic$PClass)
@@ -210,7 +249,9 @@ fisher.test(sex_vs_survive) # Fisher since 2x2
 
 To test this using contingency tables we have to create 2 tables: survive vs. class & survive vs. sex. It is also possible to summarize this info into one table by creating a table sex vs. class and having the percentages of people from the groups who survived in the table. The problem with this method is that it is no longer a contingency table, since a contingency table contains counts. We thus test with the aforementioned tables (fisher for survive vs. sex since this is a 2x2 table) and both results are significant with a p-value of 2.2e-16 (only the one of the fisher test is a true p-value however, the one of the chisq-test is an estimate by definition), meaning Sex and Class had a significant effect on survival.
 
-### F)
+### F) -0.1 -glm() could take continuous predictor(age) while contigency table can not. -0.1
+
+[*Is the second approach in e) wrong? Name both an advantage and a disadvantage of the two approaches, relative to each other.*]{.ul}
 
 The test is not wrong, since it shows the dependencies between two variables. However, for this test only one variable is taken into account with respect to the survival rate per test. This is a disadvantage of the contingency test in comparison with the logistic regression model, because the latter method is not restricted by one variable while the contingency test is. An advantage of using contingency tables in comparison with glm's is the ease with which one can read the table. Counts are far more comprehensible than a linear model, meaning the data is easier to understand at first glance. Another disadvantage for the contingency test is that it cannot predict the odds for one person, while the glm can do this.
 
@@ -220,12 +261,27 @@ detach(titanic)
 
 ## Exercise 3: Military coups in Africa
 
+[*To study the influence of different political and geographical variables on the number of military coups, these data are collected for several Sub Saharan African countries in the file africa.txt. The meaning of the different variables:\
+miltcoup --- number of successful military coups from independence to 1989;\
+oligarchy --- number years country ruled by military oligarchy from independence to 1989;\
+pollib --- political liberalization (0 = no civil rights for political expression, 1 = limited civil rights for
+expression but right to form political parties, 2 = full civil rights);\
+parties --- number of legal political parties in 1993;\
+pctvote --- percent voting in last election;\
+popn --- population in millions in 1989;\
+size --- area in 1000 square km;\
+numelec --- total number of legislative and presidential elections;\
+numregim --- number of regime types.*]{.ul}
+
 ```{r, include=FALSE}
 africa <- read.table("africa.txt", header=TRUE)
 attach(africa)
 ```
 
-### A)
+### A) [V]
+
+[*Perform Poisson regression on the full data set africa, taking miltcoup as response variable. Comment
+on your findings.*]{.ul}
 
 ```{r, fig.width=6, fig.height=6}
 pollib = as.factor(pollib)
@@ -236,7 +292,10 @@ pairs(africa) # = plot(africa)
 
 We find that there are only three values that are significant out of 8: oligarchy, pollib, and parties. Furthermore, through the estimates, we find that pollitical liberization strongly decreases the number of successful military coups, while the number of regime types is the strongest variable that increases the number of successful coups. All other variables are relatively close to each other, which means that their influence is similar and around 0. In the figures, the figures with pollib, the figures with miltcoup, and the figures with numregim in them have separate rows of data, because these are either a factor (pollib) which has three options, or they have numeric values with a small variety (so, for instance, miltcoup has values only from 0 to 6, and numregim from 1 to 4). The variables we would then use are of course the ones that were a significant influence on miltcoup: oligarchy, pollib, and parties.
 
-### B)
+### B) [V]
+
+[*Usethestepdownapproach (usingoutputofthefunctionsummary) to reduce the number of explanatory
+variables. Compare the resulting model with your findings in a).*]{.ul}
 
 ```{r}
 # summary(glm(miltcoup~oligarchy+pollib+parties+pctvote+popn+size+numelec+numregim,family=poisson,data=africa))
@@ -276,7 +335,13 @@ Now we see that there are no p-values higher than alpha (other than pollib1, but
 
 If we compare this model with the model in a, we find that both models use the same variables: oligarchy, pollib, and parties.
 
-### C)
+### C) -0.2 -incorrect estimation for level2. -use the predict() instead of manual calculation. -also since the factors will be expontialed use the exact value instead of rounding.
+
+predict(glm2,newdata,type="response")
+
+[*Predict the number of coups for a hypothetical country for all the three levels of political liberalization
+and the averages (over all the counties in the data) of all the other (numerical) characteristics. Comment
+on your findings.*]{.ul}
 
 Predicting within a poisson distribution is similar to predicting within a logistic regression, only now we are predicting the count and not the probability of success. The method ( exp(mu-hat + alpha-i-hat + beta-hat \* X-in) ) is similar.
 

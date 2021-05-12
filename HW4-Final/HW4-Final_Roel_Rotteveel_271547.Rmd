@@ -45,7 +45,7 @@ For weight6weeks the histograms looks more normal apart from one extra peak, the
 
 For this last reason apply the (paired) two-sample t-test. The p-value for this test is below 0.05 (\<2e-16) meaning it rejects the H0 that the mean of the differences = 0. There is thus a significant difference between both columns. The mean of the differences is estimated to be 3.84, meaning that people lost on average 3.95 kilos due to the diet.
 
-### B) 
+### B)
 
 ```{r}
 # Add variable weight.lost
@@ -205,7 +205,7 @@ When performing the anova for the interactive model with gender we now see that 
 
 From the summary of the model we witness that the odds of a successful outcome are 0.167 for a woman using diet 3. The odds also decrease for a man using diet 3 (same finding as before) but for women using diet 3 only increases their odds. Being a woman indeed seems to be a beneficial combination as the odds for losing 4 kg are 6.5.
 
-e) it is possible to test for height but is is impossible to plot the 3 different levels as before, as we would now plot against a binary variable. The first part can be examined however:
+e)  it is possible to test for height but is is impossible to plot the 3 different levels as before, as we would now plot against a binary variable. The first part can be examined however:
 
 ```{r}
 logisticmodel_height = glm(data$lost.4kg~data$diet * data$height,family=binomial)
