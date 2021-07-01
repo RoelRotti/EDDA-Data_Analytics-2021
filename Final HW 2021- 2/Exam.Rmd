@@ -37,7 +37,7 @@ c(2*t-tstar975,2*t-tstar25) # 95% bootstrap confidence interval
 
 #### Bootstrap Test (slide 2.11)
 
-When you want to test whether your test statistics can be obtained from a certain distribution (this distribution is the H0). Than mimic these test statistic values by computing it over pseudo observations from the H0 distribution (often rexp() or rnorm())
+When you want to test whether your test statistics can be obtained from a certain distribution (this distribution is the H0). Then mimic these test statistic values by computing it over pseudo observations from the H0 distribution (often rexp() or rnorm())
 
 ```{r}
 B=1000 # Number of bootstrap approximations
@@ -56,7 +56,7 @@ p=2*min(pl,pr) # Pick minimal probability*2 (two-tailed) and observe p-value. Lo
 
 #### One sample T-test / parametric (slide 2.19)
 
-Assumptions: - Normality (check with QQplot or Shapiro-Wilk test (/ Boxplot / Histogram))
+Assumptions: - Normality (check with QQplot/homoscedasticity or Shapiro-Wilk test (/ Boxplot / Histogram))
 
 ```{r}
 # Assumption check:
@@ -177,6 +177,8 @@ t.test(dataset1, dataset2) # p-value below 0.05 -> means are different
 
 Assumptions: - The Mann-Whitney test assumes that the sample X1, . . ,XM stems from population F and sample Y1, . . . ,YN stems from population G. (Whatever the fuck dit betekent) H0: - F = G in words, the populations are the same. Test based on ranks to determine whether samples come from different or the same populations. Based on ranks so it looks at the location of the medians. Large values of T indicate that F is shifted towards the right from G, i.e. that X-values are bigger than Y -values.
 
+(generalization = Kruskall-Wallis)
+
 ```{r}
 # Assumption check: None
 # Test
@@ -199,7 +201,7 @@ ks.test(dataset1, dataset2) # test statistic computes the maximal vertical diffe
 
 *Numerical outcome Y, a factor that can be fixed at I levels* Assumptions: - Assume that these samples are obtained independently from I normal populations *with equal variances*. - Balanced (randomized) design preferable! Same number of observations per group. H0: - The means for all factor levels are the same (no factor effect).
 
-The test statistic for the anova test is the F statistic = "Between groups Sum of Squares"/ "Within groups Sum of Squares". One sided, so the larger F the more evidence for rejecting H0.
+Generalization of the two-sample t-test. The test statistic for the anova test is the F statistic = "Between groups Sum of Squares"/ "Within groups Sum of Squares". One sided, so the larger F the more evidence for rejecting H0.
 
 ```{r}
 # Test:
@@ -208,6 +210,7 @@ anova(model)
 # summary(model) # for the estimated values
 # Assumption check for model:
 qqnorm(residuals(model)) # qqplot for residuals corrected for the different population means
+plot(fitted(model),residuals(model), main= "Residuals vs fitted") # Plot of residuals vs fitted values: check for homoscedasticity
 ```
 
 #### Kruskal-Wallis / non-parametric (slide 4.18)
@@ -239,7 +242,7 @@ p=2*pl # because it only matters how often sum of squares is lower than linear m
 
 #### 2-way Anova / parametric (slide 5.3)
 
-*Numerical outcome Y, two factors that can be fixed at respectively I and J levels* Assumptions: - Assume that these samples are obtained independently from I normal populations with equal variances. - Balanced (randomized) design preferable! Same number of observations per group. - Independent errors H0: - No effect from factor A (at I levels) on outcome. - No effect from factor B (at J levels) on outcome. - No effect from the interaction betwwen A and B on outcome.
+*Numerical outcome Y, two factors that can be fixed at respectively I and J levels* Assumptions: - Assume that these samples are obtained independently from I normal populations with equal variances. - Balanced (randomized) design preferable! Same number of observations per group. - Independent errors H0: - No effect from factor A (at I levels) on outcome. - No effect from factor B (at J levels) on outcome. - No effect from the interaction between A and B on outcome.
 
 The test statistic for the anova test is the F statistic = "Between groups Sum of Squares"/ "Within groups Sum of Squares". One sided, so the larger F the more evidence for rejecting H0.
 
@@ -378,7 +381,7 @@ lmer(outcome~treatment+sequence+period+(1|random_effect),REML=FALSE)
 
 ## Contingency tables
 
-Assumption: - 80 % of Expected values: total \* (factor_level_total/total) \* (factor_level_total/total) at least above 5!!
+*Assumption: - 80 % of Expected values: total \* (factor_level_total/total) \* (factor_level_total/total) at least above 5!!*
 
 #### Chi square (slide 7.7)
 

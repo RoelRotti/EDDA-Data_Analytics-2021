@@ -14,11 +14,7 @@ rm(list=ls())
 
 ## Exercise 1: Moldy Bread
 
-[*If left alone bread will become moldy, rot or decay otherwise. To investigate the influence of temperature
-and humidity on this process, the time to decay was measured for 18 slices of white bread, which were
-placed in 3 different environments and humidified or not. The data are given in the file bread.txt, with
-the first column time to decay in hours, the second column the environment (cold, warm or intermediate
-temperature) and the third column the humidity.*]{.ul}
+[*If left alone bread will become moldy, rot or decay otherwise. To investigate the influence of temperature and humidity on this process, the time to decay was measured for 18 slices of white bread, which were placed in 3 different environments and humidified or not. The data are given in the file bread.txt, with the first column time to decay in hours, the second column the environment (cold, warm or intermediate temperature) and the third column the humidity.*]{.ul}
 
 ```{r}
 bread <- read.table("bread.txt", header=TRUE)
@@ -27,8 +23,7 @@ attach(bread)
 
 ### A) [V]
 
-[*The 18 slices came from a single loaf, but were randomized to the 6 combinations of conditions. Present
-an R-code for this randomization process.*]{.ul}
+[*The 18 slices came from a single loaf, but were randomized to the 6 combinations of conditions. Present an R-code for this randomization process.*]{.ul}
 
 ```{r}
 I=3;J=2;N=3 
@@ -39,8 +34,7 @@ test_division
 
 ### B) [V]
 
-[*Make two boxplots of hours versus the two factors and two interaction plots (keeping the two factors
-fixed in turn).*]{.ul}
+[*Make two boxplots of hours versus the two factors and two interaction plots (keeping the two factors fixed in turn).*]{.ul}
 
 ```{r, fig.width= 10, fig.height=5}
 par(mfrow=c(1,2))
@@ -58,8 +52,7 @@ From the Boxplots we see that the variance of wet is quite large, and that the m
 
 ### C) -0.2, it's better to use summary function too to see what are the effects and comment on them using the estimates
 
-[*Perform an analysis of variance to test for effect of the factors temperature, humidity, and their
-interaction. Describe the interaction effect in words.*]{.ul}
+[*Perform an analysis of variance to test for effect of the factors temperature, humidity, and their interaction. Describe the interaction effect in words.*]{.ul}
 
 ```{r}
 environment=as.factor(environment); humidity=as.factor(humidity)
@@ -121,8 +114,7 @@ attach(searchengine)
 
 ### A) [V]
 
-[*Number the selected students 1 to 15 and show how (by using R) the students could be randomized to
-the interfaces in a randomized block design.*]{.ul}
+[*Number the selected students 1 to 15 and show how (by using R) the students could be randomized to the interfaces in a randomized block design.*]{.ul}
 
 ```{r}
 # Make table with available information per participant
@@ -167,9 +159,9 @@ In the former table each row corresponds to one block, in other words a group wi
 
 ### B) [V]
 
-[*Test the null hypothesis that the search time is the same for all interfaces. \
-What type of interface does require the longest search time? \
-For which combination of skill level and type of interface is the search time the shortest? \
+[*Test the null hypothesis that the search time is the same for all interfaces.\
+What type of interface does require the longest search time?\
+For which combination of skill level and type of interface is the search time the shortest?\
 Estimate the time it takes a typical user of skill level 3 to find the product on the website if the website uses interface 3.*]{.ul}
 
 ```{r}
@@ -215,8 +207,7 @@ The Friedman test shows there is a significant treatment effect for the interfac
 
 ### E) [V]
 
-[*Test the null hypothesis that the search time is the same for all interfaces by a one-wayANOVA test,
-ignoring the variable skill. Is it right/wrong or useful/not useful to perform this test on this dataset?*]{.ul}
+[*Test the null hypothesis that the search time is the same for all interfaces by a one-wayANOVA test, ignoring the variable skill. Is it right/wrong or useful/not useful to perform this test on this dataset?*]{.ul}
 
 ```{r}
 aovsearch_ow = lm(time~interface)
@@ -243,8 +234,7 @@ per = as.factor(per); id = as.factor(cow$id)
 
 ### A) [V]
 
-[*Test whether the type of feedingstuffs influences milk production using an ordinary "fixed effects"
-model, fitted with lm. Estimate the difference in milk production.*]{.ul}
+[*Test whether the type of feedingstuffs influences milk production using an ordinary "fixed effects" model, fitted with lm. Estimate the difference in milk production.*]{.ul}
 
 ```{r}
 cowlm=lm(milk~id+per+treatment)
@@ -256,9 +246,7 @@ The repeated measures fixed effect model shows no significant difference in milk
 
 ### B) [V]
 
-[*Repeat a) and b) by performing a mixed effects analysis, modelling the cow effect as a random effect
-(use the function lmer). Compare your results to the results found by using a fixed effects model. (You
-will need to install the R-package lme4, which is not included in the standard distribution of R.)*]{.ul}
+[*Repeat a) and b) by performing a mixed effects analysis, modelling the cow effect as a random effect (use the function lmer). Compare your results to the results found by using a fixed effects model. (You will need to install the R-package lme4, which is not included in the standard distribution of R.)*]{.ul}
 
 ```{r}
 library(lme4)
@@ -276,8 +264,7 @@ The code above gives the implementation of the cross-over design with the cow id
          > attach(cow)
          > t.test(milk[treatment=="A"],milk[treatment=="B"],paired=TRUE)
 
-[*Does this produce a valid test for a difference in milk production? Is its conclusion compatible with
-the one obtained in a)? Why?*]{.ul}
+[*Does this produce a valid test for a difference in milk production? Is its conclusion compatible with the one obtained in a)? Why?*]{.ul}
 
 ```{r}
 t.test(milk[treatment=="A"],milk[treatment=="B"],paired=TRUE)
@@ -306,8 +293,7 @@ Since we are looking for evidence here of whether someone has skillfully imitate
 
 ### B) [V]
 
-[*Using the given data set, investigate whether Austen herself was consistent in her different novels.
-Where are the main inconsistencies?*]{.ul}
+[*Using the given data set, investigate whether Austen herself was consistent in her different novels. Where are the main inconsistencies?*]{.ul}
 
 ```{r}
 janeausten <- austen[,1:3] # only leave columns from real austen
@@ -355,8 +341,7 @@ attach(expensescrime)
 
 ### A) [V]
 
-[*Make some graphical summaries of the data. Investigate the problem of potential and influence points,
-and the problem of collinearity.*]{.ul}
+[*Make some graphical summaries of the data. Investigate the problem of potential and influence points, and the problem of collinearity.*]{.ul}
 
 ```{r fig.width=10}
 lmcrime <- lm(expend~bad+crime+lawyers+employ+pop,data=expensescrime)
@@ -371,8 +356,7 @@ We also check the scatterplot of all potential explanatory variables against eac
 
 ### B) -0.2, you should at least mention a model with influence points removed
 
-[*Fit a linear regression model to the data. Use both the step-up and the step-down method to find the
-best model. If step-up and step-down yield two different models, choose one and motivate your choice.*]{.ul}
+[*Fit a linear regression model to the data. Use both the step-up and the step-down method to find the best model. If step-up and step-down yield two different models, choose one and motivate your choice.*]{.ul}
 
 First the step-up method is considered with expend as the response variable.
 

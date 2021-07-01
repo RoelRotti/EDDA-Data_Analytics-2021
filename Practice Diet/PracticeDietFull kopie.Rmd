@@ -1,0 +1,231 @@
+---
+title: "Practice Diet Full"
+author: "Roel"
+date: "6/30/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(pander)
+options(digits=3)
+```
+
+# Practice Diet Full
+
+To investigate the effect of 3 types of diet, 78 persons were divided randomly in 3 groups, the
+first group following diet 1, second group diet 2 and the third group diet 3. Next to some other
+characteristics, the weight was measured before diet and after 6 weeks of diet for each person
+in the study. The collected data is summarized in the data frame diet.txt with the following
+columns: person -- participant number, gender -- gender (1 = male, 0 = female), age -- age (years),
+height -- height (cm), preweight -- weight before the diet (kg), diet -- the type of diet followed,
+weight6weeks -- weight after 6 weeks of diet (kg).
+
+```{r}
+diet=read.table("diet.txt",header=TRUE);
+
+```
+
+## a) By using only the columns preweight and weight6weeks, test the claim that the diet affects
+the weight loss. Give and check the assumptions of the test(s) applied.
+
+```{r}
+
+## a) By using only the columns preweight and weight6weeks, 
+##test the claim that the diet affects
+##the weight loss. Give and check the assumptions of the test(s) applied.
+
+# x = preweight, y = postweight
+x=diet$preweight;y=diet$weight6weeks
+
+# we intend to use paired t-test, first check normality
+# make space for 2 plots
+par(mfrow=c(1,2))
+
+#check normality assumption
+qqnorm(x);hist(x) # does not look normal
+qqnorm(y);hist(y) # does not look normal
+
+
+qqnorm(y-x);hist(y-x) #shapiro.test(y-x) # but the difference is actually ok
+t.test(x,y,alt="g",paired=T) # test says diet works, p < 0.05
+
+## The samples x, y do not look normal, we can also use Mann-Whitney test
+
+wilcox.test(x,y, alt = 'g', paired=T) # also this test says diet works 
+# one can set in wilcoxon test alt="g", but it's fine without
+```
+
+## b) Compute and add to the data frame the variable weight.lost expressing the lost weight.
+Test the claim that the median lost weight is bigger than 3 kg.
+
+```{## b) Compute and add to the data frame the variable weight.lost}
+## expressing the lost weight.
+## Test the claim that the median lost weight is bigger than 3 kg.
+
+
+# compute and add weight.lost
+diet$weight.lost=diet$preweight-diet$weight6weeks
+
+# We reduce the testing problem to a binomial test, 
+# let X be the lost weight.  
+
+# Notice that...
+# H0: med(X)<= 3 
+# H1: med(X)>3
+
+# ... is the same as... 
+
+# H0: p=P(X>3)<=0.5
+# H1: p>0.5  
+
+
+# The latter is a binomal test. So, 
+
+#n = observed values
+#w = sum of all >3 values
+n=length(diet$weight.lost); w=sum(diet$weight.lost>3)
+
+
+binom.test(w,n,0.5,alt="g") # p-value=0.04439<0.05, 
+#we reject H0, hence the claim med(X)>3 is correct.
+```
+
+## c) Using now weight.lost as response variable, apply one-way ANOVA to test whether type
+of diet has an effect on the lost weight. Do all three types diets lead to weight loss? Which
+diet was the best for losing weight?
+
+```{r}
+## c) Using now weight.lost as response variable, 
+## apply one-way ANOVA to test whether type of diet 
+## has an effect on the lost weight. 
+## Do all three types diets lead to weight loss? 
+## Which diet was the best for losing weight?
+
+diet$diet=factor(diet$diet) # make the variable diet factor
+## is.factor(diet$diet) # just to check that it became factor
+mod1=lm(weight.lost~diet,data=diet)
+anova(mod1) ## p=0.003229, diet has an effect on the lost wight
+
+par(mfrow=c(1,2)) # check the normality assumption
+qqnorm(residuals(mod1)) # looks ok
+plot(fitted(mod1),residuals(mod1)) # looks ok, remember there are just 3 fitted values
+
+## Do all three types of diets lead to weight loss? 
+# Yes, as all cell means mu+alpha_i>0 are positive.
+
+# Which diet was best for losing weight?   
+summary(mod1) # diet 3 is the best
+
+```
+
+## D) Use two-way ANOVA to investigate effect of the diet and gender (and possible interaction)
+on the lost weight. Is the Friedman test relevant here? Can it be at all applied?
+
+```{r}
+## d)
+# Test for interaction between gender and diet
+mod2=lm(weight.lost~gender*diet,data=diet)  
+anova(mod2) # interaction between gender and diet is barely present 
+## it seems that diet is certainly significant, 
+# gender is present as well at least via interaction which is there  
+
+# Why can we not apply the Friedman test? 
+# One simple (but not full) answer is: 
+# the Friedman test is not relevant 
+# because there is no block factor involved here. 
+# We can pretend that gender is a block, 
+# the test still cannot be applied in view of 
+# the wrong design
+
+# Additional reasoning why the Friedman test is not relevant. If we try
+friedman.test(diet$weight.lost,diet$diet,diet$gender) 
+# we see the problems with NA's
+diet2=diet[-c(25,26),] # but even if we remove the rows with NA's, there will 
+# still be a problem with the wrong design: we do not have one observations 
+# for all combinations of levels of the treatment and block factors
+friedman.test(diet2$weight.lost,diet2$diet,diet2$gender) # wrong design
+
+
+```
+
+## E) Apply appropriate model to investigate effect(s) of diet and height (and possibly their
+interaction) on the lost weight. Is the effect of height the same for all 3 types of diet?
+
+```{r}
+## e)
+is.numeric(diet$height) # just to check height is numeric
+mod4=lm(weight.lost~diet*height,data=diet)
+anova(mod4) # no interaction between diet and height
+
+## Is the effect of height the same for all 3 types of diet?
+# Yes, because there is no interaction between diet and height. 
+# Now we test for the main effects by using the additive model 
+anova(lm(weight.lost~diet+height,data=diet))
+# conclude that diet is significant and height is not. 
+
+```
+
+## 
+F) Which of the two approaches, the one from c) or from e), do you prefer? Why? For the
+preferred model, predict the lost weight for all three types of diet for an average person.
+
+```{r}
+## f) Which of the two approaches, c) or e), do you prefer? Why? 
+# For the preferred model, 
+# predict the lost weight for all three types of diet for an average person.
+
+
+# In e) we found there is no interaction. So we use the additive model
+mod5=lm(weight.lost~diet+height,data=diet)
+drop1(mod5,test="F") # factor diet is significant, variable height is not
+
+## not asked: also summary(mod5) 
+# confirms what we had in c)
+# Hence the approach from c) is preferable (with only factor diet): 
+# no reason to include variable height that has no effect whatsoever. 
+
+# Prediction of the lost weight for all 3 types of diet for an average person:
+# the characteristics of a person do not matter as they are not included in our preferred model (just one-way anova with factor diet)
+
+summary(mod1) # and compute the group means: 3.3000kg, 3.3000-0.2741=3.0259kg, 
+# 3.3000+1.8481=5.1481kg are expected to loose as result of diets 1,2,3
+# Alternatively, by predict command:
+newdata=data.frame(diet=c("1","2","3"))
+predict(mod1,newdata) # 3.300000kg 3.025926kg 5.148148kg 
+
+```
+
+## G) Create the categorical (binary) variable lost.4kg expressing whether the lost weight is bigger
+than 4kg or not. (Hint: if a=c(1,-1,2), then a\>0 = TRUE FALSE TRUE.)
+Suppose now that we observed the variable lost.4kg instead of weight6weeks. Could we
+still test the hypothesis in b), c), d), e)? If yes, propose relevant models and perform relevant
+tests.
+
+```{r}
+
+## g) 
+
+# Test in b) is impossible to implement
+
+# Test in c) for lost.4kg and diet can be done in two ways:  
+# either by contingency table test; or by using logistic regression.
+# Any of the two is ok. We use logistic regression for the test in c).
+
+# Test in c) by logistic regression lost.4kg~diet
+lr1=glm(lost.4kg~diet,family=binomial,data=diet)
+anova(lr1,test="Chisq") # diet is significant
+
+# Tests in d) and e) can be addressed by the logistic regression
+## Test in d) by logistic regression lost.4kg~diet*gender
+lr3=glm(lost.4kg~gender*diet,family=binomial,data=diet)
+anova(lr3,test="Chisq") # there is an interaction between diet and gender
+
+# Test in e) by logistic regression lost.4kg~diet*height
+lr5=glm(lost.4kg~diet*height,family=binomial,data=diet)
+anova(lr5,test="Chisq") # no interaction between diet and height
+lr6=glm(lost.4kg~diet+height,family=binomial,data=diet) # additive model
+drop1(lr6,test="Chisq") # diet is significant, height is not
+# or: anova(lr1,lr6,test="Chisq")
+
+```

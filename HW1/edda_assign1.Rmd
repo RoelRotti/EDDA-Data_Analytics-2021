@@ -244,9 +244,8 @@ data = read.table("telephone.txt", header=TRUE)
 ## a [V]
 
 [*Make an appropriate plot of this data set. What marketing advice(s)
-would you give to the marketing
-manager? Are there any inconsistencies in the data? If so, try to fix
-these.*]{.ul}
+would you give to the marketing manager? Are there any inconsistencies
+in the data? If so, try to fix these.*]{.ul}
 
 ```{r, fig.height=2, fig.width=6}
 plot3(data$Bills, "bills", 'price')
@@ -273,9 +272,8 @@ no_zeroes_data = data$Bill[data$Bill>0]
 ## b: [V] : for not finding lambdas for which H0 is not rejected. It would be more appropriate to have the step size reduced to 0.001 so that you would have gotten 10 lambda values from 0.020 - 0.029 (and not just 0.02 for which I am giving 0.2 points) for which the p-value is more than 0.05.
 
 [*By using a bootstrap test with the test statistic T =
-median(X1,...,X200), test whether the data
-telephone.txt stems from the exponential distribution Exp(λ) with some λ
-from [0.01, 0.1].*]{.ul}
+median(X1,...,X200), test whether the data telephone.txt stems from the
+exponential distribution Exp(λ) with some λ from [0.01, 0.1].*]{.ul}
 
 ```{r}
 bootstrap <- function(t){
@@ -354,9 +352,8 @@ is [`r ci`] around its median: `r t1` .
 ## d [V] : Use sample standard deviation ('sd(x)')
 
 [*Assuming X1 , . . . Xn ∼ Exp(λ) and using the central limit theorem
-for the sample mean, estimate λ
-and construct again a 95% confidence interval for the population median.
-Comment on your findings.*]{.ul}
+for the sample mean, estimate λ and construct again a 95% confidence
+interval for the population median. Comment on your findings.*]{.ul}
 
 ```{r}
 estimated_mean = mean(no_zeroes_data) #sample mean
@@ -395,10 +392,10 @@ So the 95% confidence interval of the population median is
 ## e : State the hypothesis, also in code. Also state the probability you are testing. -0.4
 
 [*Using an appropriate test, test the null hypothesis that the median
-bill is bigger or equal to 40 euro
-against the alternative that the median bill is smaller than 40 euro.
-Next, design and perform a test to check whether the fraction of the
-bills less than 10 euro is less than 25%.*]{.ul}
+bill is bigger or equal to 40 euro against the alternative that the
+median bill is smaller than 40 euro. Next, design and perform a test to
+check whether the fraction of the bills less than 10 euro is less than
+25%.*]{.ul}
 
 ```{r}
 more = no_zeroes_data>=40
@@ -463,8 +460,8 @@ appropriate to use the spearman rank test).
 ## b [V]
 
 [*Test separately, for both the softdrink and the energy drink
-conditions, whether there is a difference
-in speed in the two running tasks.*]{.ul}
+conditions, whether there is a difference in speed in the two running
+tasks.*]{.ul}
 
 ```{r fig.height=2}
 library(dplyr)
@@ -500,8 +497,8 @@ speed.
 ## c [V]
 
 [*For each pupil compute the time difference between the two running
-tasks. Test whether these time
-differences are effected by the type of drink.*]{.ul}
+tasks. Test whether these time differences are effected by the type of
+drink.*]{.ul}
 
 ```{r fig.height=2, fig.width=4}
 par(mfrow=c(1,2))
@@ -541,13 +538,13 @@ the same results.
 # Exercise 5: Chickweights
 
 [*The dataset chickwts is a data frame included in the standard R
-installation, to view it, type chickwts
-at the R prompt. This data frame contains 71 observations on
-newly-hatched chicks which were randomly allocated among six groups.
-Each group was given a different feed supplement for six weeks, after
-which their weight (in grams) was measured. The data frame consists of a
-numeric column giving the weights, and a factor column giving the name
-of the feed supplement.*]{.ul}
+installation, to view it, type chickwts at the R prompt. This data frame
+contains 71 observations on newly-hatched chicks which were randomly
+allocated among six groups. Each group was given a different feed
+supplement for six weeks, after which their weight (in grams) was
+measured. The data frame consists of a numeric column giving the
+weights, and a factor column giving the name of the feed
+supplement.*]{.ul}
 
 ## a: no normality check -0.1
 
@@ -597,10 +594,9 @@ the most powerful, especially for this a-normal data.
 ## b [V]
 
 [*Conduct a one-way ANOVA to determine whether the type of feed
-supplement has an effect on the
-weight of the chicks. Give the estimated chick weights for each of the
-six feed supplements. What is
-the best feed supplement?*]{.ul}
+supplement has an effect on the weight of the chicks. Give the estimated
+chick weights for each of the six feed supplements. What is the best
+feed supplement?*]{.ul}
 
 ```{r}
 is.numeric(chickweights$weight); is.factor(chickweights$feed)
@@ -675,9 +671,9 @@ non-normally distributed weights.
 ## d: -0.2 No mention of the differences between the conclusions drawn from the Kruskal-Wallis test and ANOVA. (Nonparametric test (like Kruskal-Wallis test) has less power than parametric tests (like ANOVA-test) as the former doesn't need the data to be normal whereas ANOVA requires normality.
 
 [*Does the Kruskal-Wallis test arrive at the same conclusion about the
-effect of feed supplement as the
-test in b)? Explain possible differences between conclusions of the
-Kruskal-Wallis and ANOVA tests.*]{.ul}
+effect of feed supplement as the test in b)? Explain possible
+differences between conclusions of the Kruskal-Wallis and ANOVA
+tests.*]{.ul}
 
 ```{r}
 attach(chickweights); kruskal.test(weight, feed)

@@ -1,0 +1,148 @@
+---
+title: "Final exam EDDA 2"
+author: "Roel"
+date: "5/12/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Trees
+
+[*The 'Amsterdamsche Bos' Forestry wishes to estimate the total wood volume of the trees on itsdomain. To this end the Forestry has cut a sample of 59 trees of their most prevalent typesBeechandOak. The volume of these trees alongside with their height and trunk diameter have beenmeasured. The tree height and trunk diameter can be measured in the field without sacrificing thetree. The Forestry hypothesizes that these are predictive of the wood volume. The data (in the filetreeVolume.txt) is to uncover this relationship, taking into account the tree type.*]{.ul}
+
+```{r}
+trees <- read.table("treeVolume.txt", header=TRUE)
+attach(trees)
+```
+
+## A) [-0.1 missing remark that analysis without taking into account other two variables is not really correct -0.2 model assumption checks for homoscedasticity needed]
+
+[*(2.0) Investigate whether the tree type influences volume by performing ANOVA, withouttakingdiameterandheightinto account. Estimate the volumes for the two tree types.*]{.ul}
+
+```{r}
+trees$type <- as.factor(trees$type)
+is.numeric(trees$volume); is.factor(trees$type)
+type_trees_aov = lm (volume~type, data=trees)
+anova(type_trees_aov)
+qqnorm(residuals(type_trees_aov))
+summary(type_trees_aov)
+
+```
+
+When performing the anova we see that the p-value is insignificant, as it is not smaller than alpha (0.05) but 0.1736. This means the H0 stating the the means for all factor levels are the same (no factor effect) cannot be rejected. Looking at the qqplot of the residuals you could say that the residuals are doubtfully normal. They are certainly not a straight line but also do not deviate enormously form the middle diagonal.
+
+Looking at the summary we see that type beech is embedded in the intercept. The estimated volume for beech is thus 30.171. To arrive at the estimated volume of oak we add typeoak (5.079) to the volume of beech and arrive at: 35.25
+
+## B) [one way ANOVA in a) is the same as the paired t-test with var.equal=T -0.5  KS and MW should be applied -1]
+
+[*(2.0) Can a t-test be related to the test in a)? Can Mann-Whitney, Kolmogorov-Smirnov andpermutation tests also be used for the problem in a)? If yes, apply the test and comment onthe results; of no, explain why the test cannot be used.*]{.ul}
+
+```{r}
+beech <- trees$volume[trees$type=="beech"] #31
+oak <- trees$volume[trees$type=="oak"] # 28
+hist(beech)
+hist(oak)
+
+```
+
+As can be seen from the histograms the population of oaks looks pretty normally distributed whereas the population of beeches certainly is not. For that reason the t-test cannot be applied.
+
+Since the data is paired, as the trees clearly grew in the same forest on the same ground, (it can be seen as the following example from the slides: "Comparing two car tire brands by putting both brands of tire on the same car and measuring the tires' wear.") we also cannot perform the Mann Whitney and Kolmogorov Smirnov test, since these two assume the data is unpaired.
+
+The permutation test can be performed and can be done as follows (where it throws an error because they are not of the same length):
+
+```{r}
+dataset = cbind(beech,oak)
+mystat=function(x,y) {mean(x-y)}
+B=1000
+tstar=numeric(B)
+for (i in 1:B){
+  datasetstar=t(apply(cbind(dataset[,1],dataset[,2]),1,sample))
+  tstar[i]=mystat(datasetstar[,1], datasetstar[,2])
+}
+
+myt=mystat(dataset[,1],dataset[,2])
+myt
+hist(tstar)
+pl=sum(tstar<myt)/B
+pr=sum(tstar>myt)/B
+p=2*min(pl,pr)
+p # if the p-value is significant the two distributions have different means
+
+```
+
+After performing the permutation test we get a p value of `r p`, which is insignificant with a as it is greater than our alpha of 0.05. Therefore we cannot reject the H0 for this permutation test that there is no difference between the distributions of X and Y within pairs. This corresponds with the conclusion from a. We see that tstar is normally distributed as expected.
+
+## C) [you should have used the overall averages, not the averages per tree type (-0.2)]
+
+[*2.0) Investigate whether tree type influences volume, now includingdiameterandheightasexplanatory variables into the analysis (no interactions). Comment on your findings. Estimate the volumes for the two tree types with the (overall) average diameter and height?*]{.ul}
+
+When we include diameter and height as explanatory variables we arrive at a ancova.
+
+```{r}
+model = lm(volume~type+diameter+height)
+drop1(model, test = "F")
+
+summary(model)
+# Assumption check:
+qqnorm(residuals(model)) # qqplot for residuals corrected for the different population means
+plot(fitted(model),residuals(model))
+
+```
+
+When looking at the outcome of drop1 (similar to anova but takes into account that most important variable need not be at the end of the equation) we see that type is again not significant, since the p-value is above our alpha, while diameter and height are with p-values of respectively 0.143, 2.2e-16 and 8.416e-07. This means that for type we cannot reject the H0 the means for all factor levels are the same (no factor effect) while for the explanatory variables we can reject the H0 that explanatory variables (beta) are zero.
+
+When checking the assumptions we see that the line in the qqplot looks fairly straight, suggesting the residuals are normally distributed. When looking at the plot of the residuals vs the fitted we see the points seem to be fairly homogenous, albeit without the two points in the upper left corner one could suggest there is some cone shape evident.
+
+To estimate the volumes for the two tree types with average height and diameter we do the following:
+
+```{r}
+beech_full = trees[type=="beech",]
+oak_full = trees[type=="oak",]
+
+avg_dia_beech = mean(beech_full$diameter); avg_dia_beech
+avg_hei_beech = mean(beech_full$height); avg_hei_beech
+
+avg_dia_oak = mean(oak_full$diameter); avg_dia_oak
+avg_hei_oak = mean(oak_full$height); avg_hei_oak
+
+estim_volume_beach = -63.7814 + 0.4172* avg_hei_beech + 4.6981 * avg_dia_beech; estim_volume_beach
+estim_volume_oak = -63.7814 + 0.4172* avg_hei_oak + 4.6981 * avg_dia_oak; estim_volume_oak
+```
+
+After which we can conclude that the estimated volume with the average diameter and height for beech is 30.168 and for oak 36.55, which is similar to the results obtained in a, but a little different since we now discriminate between tree types.
+
+## D) [-No ancova to test if the interaction effect is significant (0.4/1.4) - partially correct conclusion about the effect of the variables height and diameter (0.2/0.3) - partially correct conclusions about the interaction effects (0.2/0.3)]
+
+[*(2.0) How doesdiameterinfluencevolume? Investigate whether this influence is similar forthe both tree types. Do the same for the influence ofheightonvolume.*]{.ul}
+
+```{r}
+plot(volume~diameter, pch= c(15, 16), col=c("green", "red"))
+legend(9, 70, legend=c("beech", "oak", "combined"), pch= c(15, 16), col=c("green", "red", "blue"))
+title("Plot influence of diameter on volume")
+abline(lm(volume~diameter,data=trees[type=='oak',]), col = "red")
+abline(lm(volume~diameter,data=trees[type=="beech",]), col = "green")
+abline(lm(volume~diameter,data=trees), col = "blue")
+```
+
+When looking at how diameter influences volume it is evident that as the diameter grows, the volume grows as well. Given that oak is red and beech is green it is also evident that this relation is the same for both type of trees
+
+```{r}
+plot(volume~height, pch= c(15, 16), col=c("green", "red"))
+legend(64, 70, legend=c("beech", "oak", "combined"), pch= c(15, 16, 17), col=c("green", "red", "blue"))
+title("Plot influence of diameter on volume")
+abline(lm(volume~height,data=trees[type=='oak',]), col = "red")
+abline(lm(volume~height,data=trees[type=="beech",]), col = "green")
+abline(lm(volume~height,data=trees), col = "blue")
+```
+
+When looking at the influence of height on volume we again see an increase in volume when height increased. This time the slope of the combined line is way smaller, and when we look at the different types of trees we see that especially for oak the slope is is really small. This suggests the volume of an oak does not quickly get more as it gets higher, whereas for beeches that is more the case. An example for this could be that an oak mostly sprouts branches with leafs after a certain height, while the massive trunk only gradually grows.
+
+## E) [Incomplete! You have to use the relationship between volume, height and diameter to create a new variable. Build a model with this new variable. compare the performance of the models by using Rsquared Run diagnostic tools on the new model]
+
+[*(2.0) Propose a transformation of the explanatory variables that possibly yields a better model(verify this). (Hint: think of a natural link between the response and explanatory variables.)*]{.ul}
+
+The volume of a round tube is calculated as it's height times the area of the tube (h*A).* To better capture this mathematical relation it is probably better to replace the diameter with the the area of the tube. I believe the calculation is ' 2\*pi \* r\^2' , where r is half of the diameter, but despite the exact implementation the transformation I propose is to rewrite the diameter ( as present in the model) to the area of the circle.

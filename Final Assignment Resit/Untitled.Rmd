@@ -1,0 +1,65 @@
+---
+title: "Final Assignment Resit"
+author: "Roel Rotteveel, 2715447"
+date: "6/30/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+data <- read.table("treeVolume.txt", header=TRUE)
+attach(data)
+```
+
+# EDDA Final Assignment Resit
+
+## a)
+
+```{r}
+
+```
+
+## b)
+
+```{r}
+
+```
+
+## c)
+
+```{r}
+
+```
+
+## d)
+
+```{r}
+
+```
+
+## e)
+
+```{r}
+
+```
+
+## f)
+
+```{r}
+
+```
+
+## g)
+
+```{r}
+
+```
+
+## h)
+
+```{r}
+
+```
